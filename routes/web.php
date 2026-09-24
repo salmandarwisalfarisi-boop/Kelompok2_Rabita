@@ -6,6 +6,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/najwan', function () {
+Route::get('/fawwaz', function () {
     return view('welcome');
 });
