@@ -10,12 +10,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #161716;
-            --accent-gold: #dec096;
-            --accent-gold-solid: #ccb694;
-            --text-muted: #a7a7a7;
-            --text-dark: #161716;
-            --text-white: #ffffff;
+            --bg-dark: #161716;             
+            --accent-gold: #DEC096;         
+            --accent-gold-solid: #CCB694;
+            --text-muted: #A7A7A7;          
+            --text-dark: #000000;           
+            --text-white: #FFFFFF;          
         }
         * {
             box-sizing: border-box;
@@ -44,7 +44,7 @@
             height: 100vh;
             position: relative;
             overflow: hidden;
-            background-color: #1a1a1a;
+            background-color: #1A1A1A;
         }
         .hero-pane img {
             width: 100%;
@@ -108,7 +108,7 @@
             position: relative;
             z-index: 2;
             display: flex;
-            bottom : 80px;
+            bottom: 80px;
             flex-direction: column;
             align-items: center;
         }
@@ -169,7 +169,7 @@
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         .input-box:focus-within {
-            border-color: #f0d5b2;
+            border-color: #F0D5B2;
             box-shadow: 0 0 0 1px rgba(222, 192, 150, 0.5);
         }
         .input-box input {
@@ -208,14 +208,14 @@
 
         /* Error validation */
         .error-feedback {
-            color: #ff7675;
+            color: #FF7675;
             font-size: 13px;
             margin-top: 5px;
         }
 
         /* Submit Button */
         .btn-submit {
-            background-color: #DEC096;
+            background-color: var(--accent-gold);
             border-radius: 8px;
             height: 48px;
             width: 100%;
