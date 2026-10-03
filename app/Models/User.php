@@ -2,48 +2,59 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    protected $table = 'tb_user';
+    protected $primaryKey = 'user_id';
+
     protected $fillable = [
-        'name',
+        'username',
         'email',
         'password',
+        'no_hp',
+        'level',
+        'remmber_token',
+        'reset_token',
+        'reset_token_expired',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
-        'remember_token',
+        'remmber_token',
+        'reset_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'reset_token_expired' => 'datetime',
         ];
+    }
+
+    public function getRememberTokenName()
+    {
+        return 'remmber_token';
+    }
+
+    public function alamat()
+    {
+        return $this->hasMany(Alamat::class, 'user_id', 'user_id');
+    }
+
+    public function keranjang()
+    {
+        return $this->hasMany(Keranjang::class, 'user_id', 'user_id');
+    }
+
+    public function pemesanan()
+    {
+        return $this->hasMany(Pemesanan::class, 'user_id', 'user_id');
     }
 }
