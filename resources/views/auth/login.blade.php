@@ -213,65 +213,6 @@
             margin-top: 5px;
         }
 
-        /* Remember Me & Forgot Password Row */
-        .options-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            margin-top: 8px;
-            margin-bottom: 24px;
-        }
-        .remember-wrap {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: var(--text-white);
-            cursor: pointer;
-            user-select: none;
-        }
-        .remember-wrap input[type="checkbox"] {
-            appearance: none;
-            -webkit-appearance: none;
-            width: 17px;
-            height: 17px;
-            border: 1px solid var(--accent-gold);
-            border-radius: 4px;
-            background-color: transparent;
-            cursor: pointer;
-            display: grid;
-            place-content: center;
-            margin: 0;
-            transition: all 0.2s;
-        }
-        .remember-wrap input[type="checkbox"]::before {
-            content: "";
-            width: 9px;
-            height: 9px;
-            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-            transform: scale(0);
-            transition: 120ms transform ease-in-out;
-            background-color: #161716;
-        }
-        .remember-wrap input[type="checkbox"]:checked {
-            background-color: var(--accent-gold);
-        }
-        .remember-wrap input[type="checkbox"]:checked::before {
-            transform: scale(1);
-        }
-        .forgot-link {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--accent-gold);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        .forgot-link:hover {
-            color: #ebd2b1;
-            text-decoration: underline;
-        }
-
         /* Submit Button */
         .btn-submit {
             background-color: #DEC096;
@@ -405,27 +346,13 @@
                     @enderror
                 </div>
 
-                <!-- Remember Me & Forgot Password -->
-                <div class="options-row">
-                    <label class="remember-wrap" for="remember_me">
-                        <input type="checkbox" id="remember_me" name="remember">
-                        <span>Remember Me</span>
-                    </label>
-                    @if (Route::has('password.request'))
-                        <a class="forgot-link" href="{{ route('password.request') }}">Forgot Password?</a>
-                    @endif
-                </div>
+                <br>
 
                 <!-- Submit Button -->
                 <button type="submit" class="btn-submit">Sign in</button>
 
                 <!-- Footer Hint -->
-                <div class="signup-hint">
-                    Don't have an account?
-                    @if (Route::has('register'))
-                        <a href="{{ route('register') }}">Sign Up</a>
-                    @endif
-                </div>
+                
             </form>
         </div>
     </div>
