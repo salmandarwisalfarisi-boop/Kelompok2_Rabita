@@ -1,47 +1,451 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Login — Rabita</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #161716;
+            --accent-gold: #dec096;
+            --accent-gold-solid: #ccb694;
+            --text-muted: #a7a7a7;
+            --text-dark: #161716;
+            --text-white: #ffffff;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Lato', sans-serif;
+        }
+        html, body {
+            height: 100%;
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            overflow: hidden;
+        }
+        .login-layout {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            max-width: 100%;
+            overflow: hidden;
+        }
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+        /* Sisi Kiri: Foto Hero Edge-to-Edge */
+        .hero-pane {
+            flex: 1;
+            max-width: 50%;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background-color: #1a1a1a;
+        }
+        .hero-pane img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        /* Sisi Kanan: Form Container */
+        .form-pane {
+            flex: 1;
+            max-width: 50%;
+            height: 100vh;
+            background-color: var(--bg-dark);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 30px;
+            overflow: hidden;
+        }
+
+        /* Batik Ornaments */
+        .batik-top-right {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .batik-top-right img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+        .batik-bottom-left {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 220px;
+            height: 220px;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .batik-bottom-left img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            transform: rotate(180deg);
+        }
+
+        /* Form Wrapper */
+        .form-wrapper {
+            width: 100%;
+            max-width: 440px;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            bottom : 80px;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Logo Rabita */
+        .logo-wrap {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: center;
+        }
+        .logo-wrap img {
+            width: 240px;
+            height: auto;
+            display: block;
+        }
+
+        /* Headings */
+        .title-text {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 6px;
+            text-align: center;
+            letter-spacing: -0.2px;
+        }
+        .subtitle-text {
+            font-size: 15px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        /* Form Inputs */
+        form {
+            width: 100%;
+        }
+        .form-group {
+            margin-bottom: 18px;
+            width: 100%;
+        }
+        .input-label {
+            display: block;
+            font-size: 15px;
+            font-weight: 400;
+            color: var(--text-white);
+            margin-bottom: 8px;
+        }
+        .input-box {
+            border: 1px solid var(--accent-gold);
+            border-radius: 8px;
+            padding: 0 14px;
+            display: flex;
+            align-items: center;
+            height: 46px;
+            width: 100%;
+            background: transparent;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-box:focus-within {
+            border-color: #f0d5b2;
+            box-shadow: 0 0 0 1px rgba(222, 192, 150, 0.5);
+        }
+        .input-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            color: var(--text-white);
+            font-family: 'Lato', sans-serif;
+        }
+        .input-box input::placeholder {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        .input-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+        }
+        .input-icon svg,
+        .input-icon img {
+            width: 22px;
+            height: 22px;
+            display: block;
+        }
+        .input-icon svg {
+            stroke: var(--text-muted);
+            stroke-width: 1.6;
+            fill: none;
+        }
+
+        /* Error validation */
+        .error-feedback {
+            color: #ff7675;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        /* Remember Me & Forgot Password Row */
+        .options-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-top: 8px;
+            margin-bottom: 24px;
+        }
+        .remember-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-white);
+            cursor: pointer;
+            user-select: none;
+        }
+        .remember-wrap input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 17px;
+            height: 17px;
+            border: 1px solid var(--accent-gold);
+            border-radius: 4px;
+            background-color: transparent;
+            cursor: pointer;
+            display: grid;
+            place-content: center;
+            margin: 0;
+            transition: all 0.2s;
+        }
+        .remember-wrap input[type="checkbox"]::before {
+            content: "";
+            width: 9px;
+            height: 9px;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            background-color: #161716;
+        }
+        .remember-wrap input[type="checkbox"]:checked {
+            background-color: var(--accent-gold);
+        }
+        .remember-wrap input[type="checkbox"]:checked::before {
+            transform: scale(1);
+        }
+        .forgot-link {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--accent-gold);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .forgot-link:hover {
+            color: #ebd2b1;
+            text-decoration: underline;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            background-color: #DEC096;
+            border-radius: 8px;
+            height: 48px;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-family: 'Lato', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .btn-submit:hover {
+            background-color: #B79361;
+        }
+        .btn-submit:active {
+            transform: scale(0.99);
+        }
+
+        /* Footer text */
+        .signup-hint {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-white);
+        }
+        .signup-hint a {
+            color: var(--accent-gold);
+            text-decoration: none;
+            font-weight: 500;
+            margin-left: 4px;
+        }
+        .signup-hint a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .hero-pane {
+                display: none;
+            }
+            .form-pane {
+                max-width: 100%;
+                flex: 1;
+            }
+            .batik-top-right { width: 260px; height: 282px; }
+            .batik-bottom-left { width: 280px; height: 304px; }
+        }
+        @media (max-height: 850px) {
+            .form-pane { padding: 16px 24px; }
+            .logo-wrap { margin-bottom: 16px; }
+            .logo-wrap img { width: 190px; }
+            .title-text { font-size: 26px; margin-bottom: 4px; }
+            .subtitle-text { font-size: 13px; margin-bottom: 20px; }
+            .form-group { margin-bottom: 12px; }
+            .input-box { height: 42px; }
+            .options-row { margin-bottom: 16px; }
+            .btn-login { height: 42px; margin-bottom: 14px; }
+            .batik-top-right { width: 260px; height: 282px; }
+            .batik-bottom-left { width: 280px; height: 304px; }
+        }
+        @media (max-height: 700px) {
+            .batik-top-right { width: 200px; height: 217px; }
+            .batik-bottom-left { width: 215px; height: 233px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-layout">
+    <!-- Kolom Kiri: Foto Hero Edge-to-Edge -->
+    <div class="hero-pane">
+        <img src="{{ asset('assets/image/sideimage_logjn.png') }}" alt="Rabita Hero">
+    </div>
+
+    <!-- Kolom Kanan: Form Login -->
+    <div class="form-pane">
+        <!-- Motif Batik Sudut Kanan Atas -->
+        <div class="batik-top-right">
+            <img src="{{ asset('images/ornamenbatik_form.svg') }}" alt="">
+        </div>
+        <!-- Motif Batik Sudut Kiri Bawah -->
+        <div class="batik-bottom-left">
+            <img src="{{ asset('images/ornamenbatik_form.svg') }}" alt="">
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+        <div class="form-wrapper">
+            <!-- Logo Rabita -->
+            <div class="logo-wrap">
+                <img src="{{ asset('assets/image/Logo.svg') }}" alt="Rabita">
+            </div>
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+            <!-- Headings -->
+            <h1 class="title-text">Welcome Back!</h1>
+            <p class="subtitle-text">Sign in to your Rabita account</p>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            <!-- Form -->
+            <form method="POST" action="{{ route('login') }}">
+                @csrf
+
+                <!-- Email Input -->
+                <div class="form-group">
+                    <label class="input-label" for="email">Email</label>
+                    <div class="input-box">
+                        <input type="text" id="email" name="email" value="{{ old('email') }}" placeholder="Type your email" required autofocus autocomplete="username">
+                        <span class="input-icon">
+                            <img src="{{ asset('assets/image/formkit_person.svg') }}" alt="User">
+                        </span>
+                    </div>
+                    @error('email')
+                        <div class="error-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Password Input -->
+                <div class="form-group">
+                    <label class="input-label" for="password">Password</label>
+                    <div class="input-box">
+                        <input type="password" id="password" name="password" placeholder="Type your password" required autocomplete="current-password">
+                        <span class="input-icon" onclick="togglePassword()" title="Lihat Password">
+                            <img id="eye-icon" src="{{ asset('assets/image/formkit_eyeclosed.svg') }}" alt="Toggle Password">
+                        </span>
+                    </div>
+                    @error('password')
+                        <div class="error-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="options-row">
+                    <label class="remember-wrap" for="remember_me">
+                        <input type="checkbox" id="remember_me" name="remember">
+                        <span>Remember Me</span>
+                    </label>
+                    @if (Route::has('password.request'))
+                        <a class="forgot-link" href="{{ route('password.request') }}">Forgot Password?</a>
+                    @endif
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-submit">Sign in</button>
+
+                <!-- Footer Hint -->
+                <div class="signup-hint">
+                    Don't have an account?
+                    @if (Route::has('register'))
+                        <a href="{{ route('register') }}">Sign Up</a>
+                    @endif
+                </div>
+            </form>
         </div>
+    </div>
+</div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+<script>
+const eyeOpenUrl = "{{ asset('assets/image/formkit_eyeopen.svg') }}";
+const eyeClosedUrl = "{{ asset('assets/image/formkit_eyeclosed.svg') }}";
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+function togglePassword() {
+    const input = document.getElementById('password');
+    const eyeIcon = document.getElementById('eye-icon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        eyeIcon.src = eyeOpenUrl;
+    } else {
+        input.type = 'password';
+        eyeIcon.src = eyeClosedUrl;
+    }
+}
+</script>
+</body>
+</html>
