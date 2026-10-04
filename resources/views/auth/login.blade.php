@@ -50,7 +50,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: center;
+            object-position: center 20%;
             display: block;
         }
 
@@ -106,28 +106,28 @@
             width: 100%;
             max-width: 440px;
             position: relative;
+            bottom : 10px;
             z-index: 2;
             display: flex;
-            bottom: 80px;
             flex-direction: column;
             align-items: center;
         }
 
         /* Logo Rabita */
         .logo-wrap {
-            margin-bottom: 24px;
+            margin-bottom: 22px;
             display: flex;
             justify-content: center;
         }
         .logo-wrap img {
-            width: 240px;
+            width: 200px;
             height: auto;
             display: block;
         }
 
         /* Headings */
         .title-text {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 700;
             color: var(--text-white);
             margin-bottom: 6px;
@@ -135,10 +135,10 @@
             letter-spacing: -0.2px;
         }
         .subtitle-text {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 400;
             color: rgba(255, 255, 255, 0.85);
-            margin-bottom: 32px;
+            margin-bottom: 28px;
             text-align: center;
         }
 
@@ -152,7 +152,7 @@
         }
         .input-label {
             display: block;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 400;
             color: var(--text-white);
             margin-bottom: 8px;
@@ -177,7 +177,7 @@
             background: transparent;
             border: none;
             outline: none;
-            font-size: 15px;
+            font-size: 14px;
             color: var(--text-white);
             font-family: 'Lato', sans-serif;
         }
@@ -196,8 +196,8 @@
         }
         .input-icon svg,
         .input-icon img {
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             display: block;
         }
         .input-icon svg {
@@ -217,11 +217,11 @@
         .btn-submit {
             background-color: var(--accent-gold);
             border-radius: 8px;
-            height: 48px;
+            height: 46px;
             width: 100%;
             border: none;
             cursor: pointer;
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 600;
             color: var(--text-dark);
             font-family: 'Lato', sans-serif;
@@ -267,21 +267,20 @@
             .batik-bottom-left { width: 280px; height: 304px; }
         }
         @media (max-height: 850px) {
-            .form-pane { padding: 16px 24px; }
-            .logo-wrap { margin-bottom: 16px; }
-            .logo-wrap img { width: 190px; }
-            .title-text { font-size: 26px; margin-bottom: 4px; }
-            .subtitle-text { font-size: 13px; margin-bottom: 20px; }
+            .form-pane { padding: 16px 20px; }
+            .logo-wrap { margin-bottom: 14px; }
+            .logo-wrap img { width: 150px; }
+            .title-text { font-size: 22px; margin-bottom: 4px; }
+            .subtitle-text { font-size: 12px; margin-bottom: 20px; }
             .form-group { margin-bottom: 12px; }
-            .input-box { height: 42px; }
-            .options-row { margin-bottom: 16px; }
-            .btn-login { height: 42px; margin-bottom: 14px; }
-            .batik-top-right { width: 260px; height: 282px; }
-            .batik-bottom-left { width: 280px; height: 304px; }
+            .input-box { height: 38px; }
+            .btn-submit { height: 38px; font-size: 14px; }
+            .batik-top-right { width: 180px; height: 180px; }
+            .batik-bottom-left { width: 190px; height: 190px; }
         }
         @media (max-height: 700px) {
-            .batik-top-right { width: 200px; height: 217px; }
-            .batik-bottom-left { width: 215px; height: 233px; }
+            .batik-top-right { width: 140px; height: 140px; }
+            .batik-bottom-left { width: 150px; height: 150px; }
         }
     </style>
 </head>
@@ -318,16 +317,16 @@
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
-                <!-- Email Input -->
+                <!-- Username Input -->
                 <div class="form-group">
-                    <label class="input-label" for="email">Email</label>
+                    <label class="input-label" for="username">Username</label>
                     <div class="input-box">
-                        <input type="text" id="email" name="email" value="{{ old('email') }}" placeholder="Type your email" required autofocus autocomplete="username">
+                        <input type="text" id="username" name="username" value="{{ old('username') }}" placeholder="Type your username" required autofocus autocomplete="username">
                         <span class="input-icon">
                             <img src="{{ asset('assets/image/formkit_person.svg') }}" alt="User">
                         </span>
                     </div>
-                    @error('email')
+                    @error('username')
                         <div class="error-feedback">{{ $message }}</div>
                     @enderror
                 </div>
