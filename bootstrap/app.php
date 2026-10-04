@@ -12,7 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'admin'   => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'no-back' => \App\Http\Middleware\PreventBackHistory::class,
+        ]);
+        $middleware->appendToGroup('web', [
+            \App\Http\Middleware\PreventBackHistory::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
