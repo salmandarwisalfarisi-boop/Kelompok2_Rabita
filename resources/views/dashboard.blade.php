@@ -521,27 +521,7 @@
     </style>
 </head>
 <body>
-    <aside>
-        <div class="lg">
-            <a href="{{ route('dashboard') }}" style="display:flex;align-items:center;justify-content:center;">
-                <img alt="Rabita" src="{{ asset('assets/image/Logo.svg') }}">
-            </a>
-        </div>
-        <nav id="nav"></nav>
-        <div class="sidebar-logout">
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    <span>Logout</span>
-                </button>
-            </form>
-        </div>
-    </aside>
+    @include('components.sidebar')
 
     <main>
         <h1>Selamat Datang, {{ Auth::user()->username ?? Auth::user()->name ?? 'Admin' }}</h1>
@@ -552,7 +532,7 @@
         <section class="g2">
             <div class="card">
                 <div class="hd">
-                    <h2>Total Produk</h2>
+                    <h2>Grafik Pendapatan</h2>
                     <select>
                         <option>7 Hari Terakhir</option>
                         <option>30 Hari Terakhir</option>
@@ -631,13 +611,6 @@
             trendingUp:    "{{ asset('images/trending-up.svg') }}"
         };
 
-        $('nav').innerHTML = [
-            [icons.dashboard, 'Dashboard'],
-            [icons.produk,    'Produk'],
-            [icons.kategori,  'Kategori'],
-            [icons.pesanan,   'Pesanan'],
-            [icons.pengguna,  'Pengguna']
-        ].map((n, i) => `<a href="#" class="${i ? '' : 'on'}"><img src="${n[0]}" alt="${n[1]}"><span>${n[1]}</span></a>`).join('');
 
         $('stats').innerHTML = [
             ['Total Produk',        icons.statProduk],
