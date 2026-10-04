@@ -12,7 +12,7 @@ Route::get('/beranda', function () {
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified', 'admin'])->name('dashboard');
+})->middleware(['auth', 'admin'])->name('dashboard');
 
 Route::resource('produk', App\Http\Controllers\ProdukController::class)
     ->middleware(['auth', 'admin']);

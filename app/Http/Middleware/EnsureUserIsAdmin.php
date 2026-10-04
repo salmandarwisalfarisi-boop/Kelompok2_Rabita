@@ -15,7 +15,11 @@ class EnsureUserIsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user() || $request->user()->level !== 'admin') {
+        if (! $request->user()) {
+            return redirect()->route('login');
+        }
+
+        if ($request->user()->level !== 'admin') {
             abort(403, 'Akses ditolak. Halaman ini hanya dapat diakses oleh Admin.');
         }
 
