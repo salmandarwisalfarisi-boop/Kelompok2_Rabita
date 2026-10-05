@@ -27,5 +27,14 @@
             Logout
         </button>
     </form>
+
+    <script>
+        // Anti BFCache / Prevent Back History
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted || (window.performance && (window.performance.navigation.type === 2 || (window.performance.getEntriesByType && window.performance.getEntriesByType("navigation")[0]?.type === "back_forward")))) {
+                window.location.reload();
+            }
+        });
+    </script>
 </body>
 </html>
