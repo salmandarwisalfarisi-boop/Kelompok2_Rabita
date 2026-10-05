@@ -50,12 +50,18 @@ class ProdukController extends Controller
         ]);
 
         $data = $request->except(['gambar_produk', 'gambar_kanan', 'gambar_kiri', 'gambar_dalam']);
+        $destinationPath = public_path('assets/image/produk');
+
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0755, true);
+        }
 
         foreach (['gambar_produk', 'gambar_kanan', 'gambar_kiri', 'gambar_dalam'] as $field) {
             if ($request->hasFile($field)) {
                 $file     = $request->file($field);
-                $filename = time() . '_' . $field . '_' . $file->getClientOriginalName();
-                $file->move(public_path('assets/image/produk'), $filename);
+                $ext      = $file->getClientOriginalExtension();
+                $filename = time() . '_' . $field . '_' . uniqid() . '.' . $ext;
+                $file->move($destinationPath, $filename);
                 $data[$field] = $filename;
             } else {
                 $data[$field] = null;
@@ -107,17 +113,25 @@ class ProdukController extends Controller
         ]);
 
         $data = $request->except(['gambar_produk', 'gambar_kanan', 'gambar_kiri', 'gambar_dalam']);
+        $destinationPath = public_path('assets/image/produk');
+
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0755, true);
+        }
 
         foreach (['gambar_produk', 'gambar_kanan', 'gambar_kiri', 'gambar_dalam'] as $field) {
             if ($request->hasFile($field)) {
-                // Hapus file lama
-                $oldPath = public_path('assets/image/produk/' . $produk->$field);
-                if ($produk->$field && file_exists($oldPath)) {
-                    unlink($oldPath);
+                // Hapus file lama jika ada
+                if ($produk->$field) {
+                    $oldPath = $destinationPath . '/' . $produk->$field;
+                    if (file_exists($oldPath) && is_file($oldPath)) {
+                        @unlink($oldPath);
+                    }
                 }
                 $file     = $request->file($field);
-                $filename = time() . '_' . $field . '_' . $file->getClientOriginalName();
-                $file->move(public_path('assets/image/produk'), $filename);
+                $ext      = $file->getClientOriginalExtension();
+                $filename = time() . '_' . $field . '_' . uniqid() . '.' . $ext;
+                $file->move($destinationPath, $filename);
                 $data[$field] = $filename;
             }
         }

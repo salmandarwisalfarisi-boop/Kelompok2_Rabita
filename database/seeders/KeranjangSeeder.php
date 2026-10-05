@@ -9,16 +9,23 @@ class KeranjangSeeder extends Seeder
 {
     public function run(): void
     {
-        Keranjang::create([
-            'user_id' => 2,
-            'produk_id' => 3,
-            'jumlah' => 2,
-        ]);
+        $produk1 = \App\Models\Produk::first(); // Misal Totebag Genbie
+        $produk2 = \App\Models\Produk::skip(1)->first(); // Misal Glowy Bag
 
-        Keranjang::create([
-            'user_id' => 3,
-            'produk_id' => 1,
-            'jumlah' => 1,
-        ]);
+        if ($produk1) {
+            Keranjang::create([
+                'user_id' => 2,
+                'produk_id' => $produk1->produk_id,
+                'jumlah' => 2,
+            ]);
+        }
+
+        if ($produk2) {
+            Keranjang::create([
+                'user_id' => 3,
+                'produk_id' => $produk2->produk_id,
+                'jumlah' => 1,
+            ]);
+        }
     }
 }

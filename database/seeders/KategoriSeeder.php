@@ -11,17 +11,15 @@ class KategoriSeeder extends Seeder
     public function run(): void
     {
         $kategoriList = [
-            'Gamis & Abaya',
-            'Hijab & Khimar',
-            'Mukena',
-            'Aksesoris Muslimah',
+            'Tas (Bag)',
+            'Aksesori & Gantungan Tas (Bag Charm)',
         ];
 
         foreach ($kategoriList as $nama) {
-            Kategori::create([
-                'nama_kategori' => $nama,
-                'slug' => Str::slug($nama),
-            ]);
+            Kategori::firstOrCreate(
+                ['nama_kategori' => $nama],
+                ['slug' => Str::slug($nama)]
+            );
         }
     }
 }
