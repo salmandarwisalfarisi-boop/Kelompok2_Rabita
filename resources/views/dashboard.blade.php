@@ -176,19 +176,35 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            padding: 22px 20px 20px;
+            padding: 20px 22px;
+            min-height: 120px;
+            box-sizing: border-box;
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 80px;
         }
 
         .stat small {
             color: var(--mut);
             font-size: 14px;
+            line-height: 1.2;
         }
 
         .stat b {
             display: block;
-            font-size: 34px;
-            margin: 2px 0 14px;
+            font-size: 32px;
+            line-height: 1.2;
+            margin: 6px 0 12px;
             color: var(--tx);
+        }
+
+        .stat b.stat-curr {
+            font-size: 24px;
+            letter-spacing: -0.5px;
         }
 
         .stat em {
@@ -198,6 +214,7 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            line-height: 1;
         }
 
         .stat em img,
@@ -207,6 +224,10 @@
             display: inline-block;
             flex: none;
         }
+
+        .stat em.trend-up    { color: var(--green); }
+        .stat em.trend-down  { color: #EF4444; }
+        .stat em.trend-neutral { color: var(--mut); }
 
         .ic {
             width: 44px;
@@ -380,33 +401,51 @@
             color: var(--badge-warn-tx);
         }
 
+        .g {
+            background: #DCFCE7;
+            color: #15803D;
+        }
+
         .it {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 14px;
         }
 
         .th {
-            width: 36px;
-            height: 36px;
+            width: 44px;
+            height: 44px;
             flex: none;
-            border-radius: 8px;
-            background: var(--icon-bg);
+            border-radius: 10px;
+            background: #F6F3ED;
             display: grid;
             place-items: center;
             color: var(--gold);
+            overflow: hidden;
+            border: 1px solid #ECE7DE;
         }
 
-        .th svg {
-            width: 20px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 1.6;
+        .th img.thumb-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .th svg,
+        .th img.thumb-icon {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
         }
 
         /* --- Order & Stock Section Specifics --- */
         #oc {
-            padding: 22px 26px 26px;
+            padding: 28px 32px 32px;
+        }
+
+        #sc {
+            padding: 28px 32px 32px;
         }
 
         .all {
@@ -416,58 +455,95 @@
         }
 
         #ot th {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
             color: var(--muted-light);
-            padding: 10px 0 9px;
+            padding: 14px 0 18px;
+            border-bottom: 1.5px solid var(--ln);
+            letter-spacing: 0.3px;
         }
 
         #ord td {
-            padding: 14px 0;
-            font-size: 14px;
+            padding: 24px 0;
+            font-size: 14.5px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--ln);
         }
 
         #ord td b {
             font-weight: 600;
-            font-size: 14px;
+            font-size: 14.5px;
+            color: var(--tx);
         }
 
         #ord small {
+            display: block;
             color: var(--muted-light);
-            font-size: 12px;
+            font-size: 12.5px;
+            margin-top: 6px;
+            line-height: 1.3;
         }
 
         #ord .b {
-            width: 100%;
-            max-width: none;
+            display: inline-block;
+            width: auto;
+            min-width: 105px;
+            max-width: 130px;
             color: var(--badge-proc-tx);
             font-weight: 600;
-            padding: 4px 8px;
+            padding: 7px 16px;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 12.5px;
         }
 
         .rd {
-            color: var(--badge-warn-tx);
+            color: #EF4444;
             font-weight: 700;
+            font-size: 14.5px;
             text-align: center;
         }
 
         #stk td {
-            padding: 13px 0;
+            padding: 16px 0;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--ln);
         }
 
         #stk b {
-            font-weight: 500;
-            font-size: 13px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--tx);
+            display: block;
+            margin-bottom: 3px;
         }
 
         #stk small {
             color: var(--muted-light);
+            font-size: 12px;
+            display: block;
         }
 
-        .b.r {
-            width: 100%;
-            max-width: 156px;
+        #stk .b {
+            display: inline-block;
+            width: auto;
+            min-width: 105px;
+            max-width: 125px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
             font-weight: 600;
+            text-align: center;
+        }
+
+        #stk .b.r {
+            background: #FDE8E8;
+            color: #E05252;
+        }
+
+        #stk .b.g {
+            background: #DCFCE7;
+            color: #15803D;
         }
 
         /* --- Responsive Queries --- */
@@ -527,59 +603,154 @@
         <h1>Selamat Datang, {{ Auth::user()->username ?? Auth::user()->name ?? 'Admin' }}</h1>
         <p class="hs">Semoga hari-hari produktif dan penuh semangat!</p>
 
-        <section class="stats" id="stats"></section>
+        <section class="stats" id="stats">
+            <div class="card stat">
+                <div class="stat-info">
+                    <small>Total Produk</small>
+                    <b>{{ $totalProduk }}</b>
+                    <em class="trend-{{ $trendProduk }}">@if($trendProduk === 'up')<img src="{{ asset('images/trending-up.svg') }}" alt="">@elseif($trendProduk === 'down')<img src="{{ asset('images/trending-down.svg') }}" alt="">@else<span style="font-size:13px">─</span>@endif {{ $diffProduk }}</em>
+                </div>
+                <div class="ic"><img src="{{ asset('images/package.svg') }}" alt="Total Produk"></div>
+            </div>
+
+            <div class="card stat">
+                <div class="stat-info">
+                    <small>Total Pesanan</small>
+                    <b>{{ $totalPemesanan }}</b>
+                    <em class="trend-{{ $trendPemesanan }}">@if($trendPemesanan === 'up')<img src="{{ asset('images/trending-up.svg') }}" alt="">@elseif($trendPemesanan === 'down')<img src="{{ asset('images/trending-down.svg') }}" alt="">@else<span style="font-size:13px">─</span>@endif {{ $diffPemesanan }}</em>
+                </div>
+                <div class="ic"><img src="{{ asset('images/shopping-cart.svg') }}" alt="Total Pesanan"></div>
+            </div>
+
+            <div class="card stat">
+                <div class="stat-info">
+                    <small>Total Pendapatan</small>
+                    <b class="stat-curr">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</b>
+                    <em class="trend-{{ $trendPendapatan }}">@if($trendPendapatan === 'up')<img src="{{ asset('images/trending-up.svg') }}" alt="">@elseif($trendPendapatan === 'down')<img src="{{ asset('images/trending-down.svg') }}" alt="">@else<span style="font-size:13px">─</span>@endif {{ $diffPendapatan }}</em>
+                </div>
+                <div class="ic"><img src="{{ asset('images/dollar-sign.svg') }}" alt="Total Pendapatan"></div>
+            </div>
+
+            <div class="card stat">
+                <div class="stat-info">
+                    <small>Total Pengguna</small>
+                    <b>{{ $totalPengguna }}</b>
+                    <em class="trend-{{ $trendPengguna }}">@if($trendPengguna === 'up')<img src="{{ asset('images/trending-up.svg') }}" alt="">@elseif($trendPengguna === 'down')<img src="{{ asset('images/trending-down.svg') }}" alt="">@else<span style="font-size:13px">─</span>@endif {{ $diffPengguna }}</em>
+                </div>
+                <div class="ic"><img src="{{ asset('images/users.svg') }}" alt="Total Pengguna"></div>
+            </div>
+        </section>
 
         <section class="g2">
             <div class="card">
                 <div class="hd">
                     <h2>Grafik Pendapatan</h2>
-                    <select>
-                        <option>7 Hari Terakhir</option>
-                        <option>30 Hari Terakhir</option>
+                    <select id="chartRangeSelect" onchange="updateChart()">
+                        <option value="7">7 Hari Terakhir</option>
+                        <option value="30">30 Hari Terakhir</option>
                     </select>
                 </div>
                 <svg class="ch" id="ch" viewBox="0 0 640 270"></svg>
             </div>
             <div class="card pc">
                 <h2>Produk Paling Diminati</h2>
-                <div class="pp" id="pp"></div>
+                <div class="pp" id="pp">
+                    @forelse($produkTerlaris as $item)
+                        @php
+                            $nama = $item->produk->nama_produk ?? 'Produk Rabita';
+                            $harga = $item->produk->harga ?? 0;
+                            $terjual = $item->total_terjual ?? 1;
+                            $barWidth = min(100, max(20, $terjual * 15));
+                        @endphp
+                        <div>
+                            <span title="{{ $nama }}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px;">{{ $nama }}</span>
+                            <span class="p">Rp {{ number_format($harga, 0, ',', '.') }}</span>
+                            <div class="bar" style="width: 100%"><i style="width: {{ $barWidth }}%"></i></div>
+                            <small>{{ $terjual }} terjual</small>
+                        </div>
+                    @empty
+                        <p style="color: var(--mut); font-size: 13px;">Belum ada data produk terjual.</p>
+                    @endforelse
+                </div>
             </div>
         </section>
 
         <section class="g2">
             <div class="card" id="oc">
-                <div class="hd">
+                <div class="hd" style="margin-bottom: 16px;">
                     <h2>Pesanan Terbaru</h2>
                     <a href="#" class="all">Lihat Semua</a>
                 </div>
                 <div class="tw">
                     <table id="ot" style="min-width:520px">
                         <colgroup>
-                            <col style="width:24%">
-                            <col style="width:29%">
-                            <col style="width:27.5%">
-                            <col style="width:19.5%">
+                            <col style="width:23%">
+                            <col style="width:36%">
+                            <col style="width:23%">
+                            <col style="width:18%">
                         </colgroup>
                         <thead>
                             <tr>
                                 <th>No. Pesanan</th>
                                 <th>Produk</th>
-                                <th>Total</th>
+                                <th>Total</th>              
                                 <th>Status</th>
                             </tr>
                         </thead>
-                        <tbody id="ord"></tbody>
+                        <tbody id="ord">
+                            @forelse($pesananTerbaru as $order)
+                                @php
+                                    $firstItem = $order->details->first();
+                                    $namaProduk = $firstItem && $firstItem->produk ? $firstItem->produk->nama_produk : 'Pesanan Rabita';
+                                    $extraCount = $order->details->count() - 1;
+                                    
+                                    $badgeClass = 'y';
+                                    $statusLabel = ucfirst($order->status_pesanan);
+                                    if ($order->status_pesanan === 'selesai') {
+                                        $badgeClass = 'g';
+                                    } elseif ($order->status_pesanan === 'batal') {
+                                        $badgeClass = 'r';
+                                    }
+                                @endphp
+                                <tr>
+                                    <td>
+                                        <b>#ORD-{{ str_pad($order->pemesanan_id, 4, '0', STR_PAD_LEFT) }}</b>
+                                        <small>{{ \Carbon\Carbon::parse($order->tanggal_pesan)->format('d M Y, H:i') }}</small>
+                                    </td>
+                                    <td>
+                                        <b title="{{ $namaProduk }}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 210px; display: block;">
+                                            {{ Str::limit($namaProduk, 28) }}
+                                        </b>
+                                        @if($extraCount > 0)
+                                            <small>+{{ $extraCount }} produk lainnya</small>
+                                        @else
+                                            <small>{{ $order->user->username ?? 'Customer' }}</small>
+                                        @endif
+                                    </td>
+                                    <td><b>Rp {{ number_format($order->total_harga, 0, ',', '.') }}</b></td>
+                                    <td style="text-align: left;">
+                                        <span class="b {{ $badgeClass }}">{{ $statusLabel }}</span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" style="text-align:center; color: var(--mut); padding: 20px;">Belum ada pesanan terbaru.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
                     </table>
                 </div>
             </div>
-            <div class="card">
-                <h2>Stok Hampir Habis</h2>
+            <div class="card" id="sc">
+                <div class="hd" style="margin-bottom: 16px;">
+                    <h2>Stok Hampir Habis</h2>
+                </div>
                 <div class="tw">
                     <table>
                         <colgroup>
-                            <col style="width:46%">
-                            <col style="width:18%">
-                            <col style="width:36%">
+                            <col style="width:52%">
+                            <col style="width:16%">
+                            <col style="width:32%">
                         </colgroup>
                         <thead>
                             <tr>
@@ -588,7 +759,39 @@
                                 <th style="text-align:center">Status</th>
                             </tr>
                         </thead>
-                        <tbody id="stk"></tbody>
+                        <tbody id="stk">
+                            @forelse($stokMenipis as $item)
+                                @php
+                                    $fotoPath = $item->gambar_produk ? public_path('assets/image/produk/' . $item->gambar_produk) : null;
+                                    $fotoUrl  = ($fotoPath && file_exists($fotoPath)) ? asset('assets/image/produk/' . $item->gambar_produk) : null;
+                                @endphp
+                                <tr>
+                                    <td>
+                                        <div class="it">
+                                            <div class="th">
+                                                @if($fotoUrl)
+                                                    <img src="{{ $fotoUrl }}" alt="{{ $item->nama_produk }}" class="thumb-img">
+                                                @else
+                                                    <img src="{{ asset('images/package.svg') }}" alt="" class="thumb-icon" style="filter: brightness(0) saturate(100%) invert(64%) sepia(35%) saturate(541%) hue-rotate(356deg) brightness(91%) contrast(87%);">
+                                                @endif
+                                            </div>
+                                            <div style="min-width: 0;">
+                                                <b title="{{ $item->nama_produk }}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 210px; display: block;">{{ Str::limit($item->nama_produk, 26) }}</b>
+                                                <small>{{ $item->kategori->nama_kategori ?? 'Sasirangan' }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="rd">{{ $item->stok }}</td>
+                                    <td style="text-align:center">
+                                        <span class="b r">Hampir Habis</span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" style="text-align:center; color: var(--mut); padding: 28px 10px;">Semua stok produk masih aman (&ge; 16).</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -598,61 +801,80 @@
     <script>
         const $ = id => document.getElementById(id);
 
-        const icons = {
-            dashboard:     "{{ asset('images/famicons_home-outline.svg') }}",
-            produk:        "{{ asset('images/bi_box-seam.svg') }}",
-            kategori:      "{{ asset('images/reicon_category.svg') }}",
-            pesanan:       "{{ asset('images/Vector.svg') }}",
-            pengguna:      "{{ asset('images/Vector (1).svg') }}",
-            statProduk:    "{{ asset('images/package.svg') }}",
-            statPemesanan: "{{ asset('images/shopping-cart.svg') }}",
-            statPendapatan:"{{ asset('images/dollar-sign.svg') }}",
-            statPengguna:  "{{ asset('images/users.svg') }}",
-            trendingUp:    "{{ asset('images/trending-up.svg') }}"
+        const data7 = {
+            labels: {!! json_encode($chart7Labels) !!},
+            values: {!! json_encode($chart7Values) !!}
         };
 
+        const data30 = {
+            labels: {!! json_encode($chart30Labels) !!},
+            values: {!! json_encode($chart30Values) !!}
+        };
 
-        $('stats').innerHTML = [
-            ['Total Produk',        icons.statProduk],
-            ['Total Pemesanan',     icons.statPemesanan],
-            ['Pendapatan Hari Ini', icons.statPendapatan],
-            ['Total Pengguna',      icons.statPengguna]
-        ].map(s => `<div class="card stat"><div><small>${s[0]}</small><b>23</b><em><img src="${icons.trendingUp}" alt=""> +2 dari bulan lalu</em></div><div class="ic"><img src="${s[1]}" alt="${s[0]}"></div></div>`).join('');
+        function renderChart(labels, values) {
+            const maxVal = Math.max(...values, 0);
+            let step = 100000;
+            if (maxVal > 5000000) step = 2000000;
+            else if (maxVal > 2000000) step = 1000000;
+            else if (maxVal > 1000000) step = 500000;
+            else if (maxVal > 500000) step = 200000;
+            else step = 100000;
 
-        $('pp').innerHTML = [
-            [47, 80],
-            [64, 86],
-            [64, 86],
-            [64, 86]
-        ].map(w => `<div><span>Tas Ransel Elgal</span><span class="p">Rp 460.000</span><div class="bar" style="width:${w[0]}%"><i style="width:${w[1]}%"></i></div><small>34 terjual</small></div>`).join('');
-
-        $('ord').innerHTML = Array(5).fill(`<tr><td><b>#INV-00012</b><small>12 Okt 2024</small></td><td>Tas Ransel Elgal</td><td><b>Rp 460.000</b></td><td><span class="b y">Diproses</span></td></tr>`).join('');
-
-        $('stk').innerHTML = Array(5).fill(`<tr><td><div class="it"><div class="th"><img src="${icons.statProduk}" alt="" style="filter: brightness(0) saturate(100%) invert(64%) sepia(35%) saturate(541%) hue-rotate(356deg) brightness(91%) contrast(87%);"></div><div><b>Jaket Denim</b><small>Pakaian</small></div></div></td><td class="rd">3</td><td style="text-align:center"><span class="b r">Hampir Habis</span></td></tr>`).join('');
-
-        (function(){
-            const v = [1.9, 3.8, 2.8, 5.4, 2.8, 4.2, 2],
-                  d = [17, 18, 19, 20, 21, 22, 23],
-                  x0 = 75, x1 = 625, y0 = 225, h = 190;
+            const maxValue = step * 5;
+            const x0 = 82, x1 = 625, y0 = 225, h = 190;
             let s = '';
 
+            // Sumbu Y: 6 Garis Horizontal (0 s/d 5)
             for (let i = 0; i <= 5; i++) {
                 const yy = y0 - i * (h / 5);
-                s += `<line x1="${x0}" x2="${x1}" y1="${yy}" y2="${yy}" stroke="#F0EDE8"/><text x="${x0-8}" y="${yy+4}" text-anchor="end" font-size="9" fill="#AAAAAA">Rp.${(i*2).toLocaleString('id-ID')}${i?'.000.000':''}</text>`;
+                const val = step * i;
+                const formattedVal = val === 0 ? 'Rp.0' : 'Rp.' + val.toLocaleString('id-ID');
+
+                s += `<line x1="${x0}" x2="${x1}" y1="${yy}" y2="${yy}" stroke="#F0EDE8"/>` +
+                     `<text x="${x0-8}" y="${yy+4}" text-anchor="end" font-size="9" fill="#AAAAAA">${formattedVal}</text>`;
             }
 
-            const px = i => x0 + i * (x1 - x0) / 6,
-                  py = a => y0 - a / 10 * h;
+            const totalPoints = values.length;
+            const px = i => x0 + i * (x1 - x0) / Math.max(1, totalPoints - 1);
+            const py = val => y0 - (val / maxValue) * h;
 
-            v.forEach((a, i) => {
-                s += `<line x1="${px(i)}" x2="${px(i)}" y1="${y0-h}" y2="${y0}" stroke="#F0EDE8"/><text x="${px(i)}" y="${y0+18}" text-anchor="middle" font-size="9" fill="#AAAAAA">${d[i]} Sep</text>`;
+            // Sumbu X: Garis Vertikal & Label Tanggal
+            const skipLabel = totalPoints > 15 ? 5 : 1;
+            labels.forEach((label, i) => {
+                s += `<line x1="${px(i)}" x2="${px(i)}" y1="${y0-h}" y2="${y0}" stroke="#F0EDE8"/>`;
+                if (i % skipLabel === 0 || i === totalPoints - 1) {
+                    s += `<text x="${px(i)}" y="${y0+18}" text-anchor="middle" font-size="9" fill="#AAAAAA">${label}</text>`;
+                }
             });
 
-            s += `<polyline fill="none" stroke="#DEC096" stroke-width="2.5" points="${v.map((a, i) => px(i) + ',' + py(a)).join(' ')}"/>` +
-                 v.map((a, i) => `<circle cx="${px(i)}" cy="${py(a)}" r="5" fill="#B79361"/>`).join('');
+            // Garis Grafik Polyline (#DEC096, tebal 2.5)
+            const points = values.map((val, i) => `${px(i)},${py(val)}`).join(' ');
+            s += `<polyline fill="none" stroke="#DEC096" stroke-width="2.5" points="${points}"/>`;
 
-            $('ch').innerHTML = s;
-        })();
+            // Titik Lingkaran Solid (#B79361)
+            const rSize = totalPoints > 15 ? 3.5 : 5;
+            values.forEach((val, i) => {
+                s += `<circle cx="${px(i)}" cy="${py(val)}" r="${rSize}" fill="#B79361">` +
+                     `<title>${labels[i]}: Rp ${val.toLocaleString('id-ID')}</title></circle>`;
+            });
+
+            const chElem = $('ch');
+            if (chElem) {
+                chElem.innerHTML = s;
+            }
+        }
+
+        function updateChart() {
+            const rangeSelect = $('chartRangeSelect');
+            const range = rangeSelect ? rangeSelect.value : '7';
+            if (range === '30') {
+                renderChart(data30.labels, data30.values);
+            } else {
+                renderChart(data7.labels, data7.values);
+            }
+        }
+
+        updateChart();
     </script>
 </body>
 </html>
