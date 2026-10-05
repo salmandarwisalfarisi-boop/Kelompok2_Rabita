@@ -433,34 +433,6 @@
                         @enderror
                     </div>
 
-                    <div class="form-group form-full">
-                        <label>Gambar Produk</label>
-                        @php
-                            $imgPath = public_path('assets/image/produk/' . $produk->gambar_produk);
-                            $imgSrc  = file_exists($imgPath)
-                                ? asset('assets/image/produk/' . $produk->gambar_produk)
-                                : 'https://placehold.co/120x120/F0EDE8/B79361?text=No+Img';
-                        @endphp
-                        <div style="display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-top: 6px;">
-                            <div>
-                                <img id="currentImg" src="{{ $imgSrc }}" alt="{{ $produk->nama_produk }}" class="current-img">
-                                <p class="img-label">Gambar saat ini</p>
-                            </div>
-                            <div>
-                                <img id="imgPreview" class="img-preview" src="" alt="Preview baru">
-                                <p class="img-label" id="newImgLabel" style="display: none;">Gambar baru</p>
-                            </div>
-                        </div>
-                        <input type="file" id="gambar_produk" name="gambar_produk"
-                               accept="image/*" style="margin-top: 10px;" onchange="previewImg(this)">
-                        <span style="font-size: 12px; color: var(--mut);">
-                            Kosongkan jika tidak ingin mengganti gambar. JPG, PNG, WEBP &middot; Maks 2MB.
-                        </span>
-                        @error('gambar_produk')
-                            <span class="error">{{ $message }}</span>
-                        @enderror
-                    </div>
-
                 </div>
             </div>
 
@@ -489,9 +461,8 @@
                             $curSrc  = $hasImg ? asset('assets/image/produk/' . $slot['current']) : '';
                         @endphp
                         <div class="photo-slot">
-                            <label>{{ $slot['label'] }}</label>
-                            <div class="photo-box" id="box-{{ $slot['field'] }}"
-                                 onclick="document.getElementById('{{ $slot['field'] }}').click()">
+                            <label for="{{ $slot['field'] }}">{{ $slot['label'] }}</label>
+                            <label class="photo-box" for="{{ $slot['field'] }}" id="box-{{ $slot['field'] }}">
                                 <img class="preview" id="preview-{{ $slot['field'] }}"
                                      src="{{ $curSrc }}"
                                      alt="{{ $slot['label'] }}"
@@ -503,11 +474,13 @@
                                         <circle cx="8.5" cy="8.5" r="1.5"></circle>
                                         <polyline points="21 15 16 10 5 21"></polyline>
                                     </svg>
-                                    <span>Klik untuk upload</span>
+                                    <span>Klik untuk ganti</span>
                                 </div>
                                 <input type="file" id="{{ $slot['field'] }}" name="{{ $slot['field'] }}"
-                                       accept="image/*" onchange="previewImg(this, '{{ $slot['field'] }}')">
-                            </div>
+                                       accept="image/png,image/jpeg,image/jpg,image/webp"
+                                       style="display:none;"
+                                       onchange="previewImg(this, '{{ $slot['field'] }}')">
+                            </label>
                             <span class="photo-label-hint">{{ $slot['hint'] }}</span>
                             @error($slot['field'])
                                 <span class="error">{{ $message }}</span>

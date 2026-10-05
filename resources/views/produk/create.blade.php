@@ -457,9 +457,8 @@
 
                     @foreach ($fotoSlots as $slot)
                         <div class="photo-slot">
-                            <label>{{ $slot['label'] }}</label>
-                            <div class="photo-box" id="box-{{ $slot['field'] }}"
-                                 onclick="document.getElementById('{{ $slot['field'] }}').click()">
+                            <label for="{{ $slot['field'] }}">{{ $slot['label'] }}</label>
+                            <label class="photo-box" for="{{ $slot['field'] }}" id="box-{{ $slot['field'] }}">
                                 <img class="preview" id="preview-{{ $slot['field'] }}" src="" alt="">
                                 <div class="upload-icon" id="icon-{{ $slot['field'] }}">
                                     <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -470,8 +469,10 @@
                                     <span>Klik untuk upload</span>
                                 </div>
                                 <input type="file" id="{{ $slot['field'] }}" name="{{ $slot['field'] }}"
-                                       accept="image/*" onchange="previewImg(this, '{{ $slot['field'] }}')">
-                            </div>
+                                       accept="image/png,image/jpeg,image/jpg,image/webp"
+                                       style="display:none;"
+                                       onchange="previewImg(this, '{{ $slot['field'] }}')">
+                            </label>
                             <span class="photo-label-hint">{{ $slot['hint'] }}</span>
                             @error($slot['field'])
                                 <span class="error">{{ $message }}</span>

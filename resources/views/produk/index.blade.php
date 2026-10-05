@@ -339,6 +339,14 @@
         td.harga {
             font-weight: 600;
             color: var(--tx);
+            white-space: nowrap;
+        }
+
+        td.kategori {
+            white-space: nowrap;
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         td.stok-warn {
@@ -757,13 +765,21 @@
                                 <td class="no">{{ $i + 1 }}</td>
                                 <td>
                                     <div class="produk-cell">
-                                        <img src="{{ $imgSrc }}" alt="{{ $p->nama_produk }}" class="produk-img" @if(!$imgSrc) style="visibility:hidden" @endif>
+                                        @if($imgSrc)
+                                            <img src="{{ $imgSrc }}" alt="{{ $p->nama_produk }}" class="produk-img" style="object-fit:cover;">
+                                        @else
+                                            <div class="produk-img" style="display:grid; place-items:center; background:#F5F0E8; color:#B79361; border-radius:6px; flex:none;">
+                                                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                </svg>
+                                            </div>
+                                        @endif
                                         <div>
                                             <div class="produk-name">{{ $p->nama_produk }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td>{{ $p->kategori->nama_kategori ?? '-' }}</td>
+                                <td class="kategori" title="{{ $p->kategori->nama_kategori ?? '-' }}">{{ $p->kategori->nama_kategori ?? '-' }}</td>
                                 <td class="harga">Rp {{ number_format($p->harga, 0, ',', '.') }}</td>
                                 <td class="center {{ $p->stok <= 5 ? 'stok-warn' : '' }}">{{ $p->stok }}</td>
                                 <td class="center">
@@ -894,11 +910,13 @@
     </main>
 
     <script>
-        const PER_PAGE = 8;
+        const PER_PAGE = 10;
         let currentPage = 1;
 
-        const rows        = () => [...document.querySelectorAll('#tableBody tr:not([style*="display: none"])')];
-        const allRows     = () => [...document.querySelectorAll('#tableBody tr')];
+        // Semua baris di tabel
+        const allRows = () => [...document.querySelectorAll('#tableBody tr')];
+        // Baris yang lolos filter (data-filtered != 'false')
+        const filteredRows = () => allRows().filter(r => r.dataset.filtered !== 'false');
 
         function filterTable() {
             const search   = document.getElementById('searchInput').value.toLowerCase();
@@ -906,30 +924,33 @@
             const status   = document.getElementById('filterStatus').value;
 
             allRows().forEach(row => {
-                const nama     = row.dataset.nama     || '';
-                const kat      = row.dataset.kategori || '';
-                const stat     = row.dataset.status   || '';
+                const nama = row.dataset.nama     || '';
+                const kat  = row.dataset.kategori || '';
+                const stat = row.dataset.status   || '';
 
                 const match =
                     (!search   || nama.includes(search)) &&
                     (!kategori || kat === kategori)       &&
                     (!status   || stat === status);
 
-                row.style.display = match ? '' : 'none';
+                row.dataset.filtered = match ? 'true' : 'false';
             });
 
             currentPage = 1;
-            renderPagination();
             showPage(1);
         }
 
         function showPage(page) {
-            currentPage     = page;
-            const visible   = rows();
-            const start     = (page - 1) * PER_PAGE;
-            const end       = start + PER_PAGE;
-            const total     = visible.length;
+            currentPage = page;
+            const visible = filteredRows();
+            const total   = visible.length;
+            const start   = (page - 1) * PER_PAGE;
+            const end     = start + PER_PAGE;
 
+            // Sembunyikan semua dulu
+            allRows().forEach(row => row.style.display = 'none');
+
+            // Tampilkan hanya baris halaman ini yang lolos filter
             visible.forEach((row, i) => {
                 row.style.display = (i >= start && i < end) ? '' : 'none';
             });
@@ -939,32 +960,32 @@
             document.getElementById('infoText').innerHTML =
                 `Menampilkan ${from}&ndash;${to} dari ${total} produk`;
 
-            renderPagination();
+            renderPagination(total);
         }
 
-        function renderPagination() {
-            const total    = rows().length;
-            const pages    = Math.ceil(total / PER_PAGE);
-            const pg       = document.getElementById('pagination');
+        function renderPagination(total) {
+            const pages = Math.ceil(total / PER_PAGE);
+            const pg    = document.getElementById('pagination');
             if (!pg) return;
 
             let html = '';
-
-            // Prev
-            html += `<a class="page-btn ${currentPage === 1 ? 'disabled' : ''}" onclick="showPage(${currentPage - 1})">&#8249;</a>`;
+            html += `<a class="page-btn ${currentPage === 1 ? 'disabled' : ''}" onclick="if(${currentPage}>1) showPage(${currentPage - 1})">&#8249;</a>`;
 
             for (let i = 1; i <= pages; i++) {
                 html += `<a class="page-btn ${i === currentPage ? 'active' : ''}" onclick="showPage(${i})">${i}</a>`;
             }
 
-            // Next
-            html += `<a class="page-btn ${currentPage === pages || pages === 0 ? 'disabled' : ''}" onclick="showPage(${currentPage + 1})">&#8250;</a>`;
+            html += `<a class="page-btn ${currentPage >= pages || pages === 0 ? 'disabled' : ''}" onclick="if(${currentPage}<${pages}) showPage(${currentPage + 1})">&#8250;</a>`;
 
             pg.innerHTML = html;
         }
 
-        // Init
+        // Init — tandai semua baris sebagai lolos filter
+        allRows().forEach(r => r.dataset.filtered = 'true');
         showPage(1);
+
+
+
 
         // --- Detail Modal Functions ---
         function setThumb(wrapId, imgId, src) {
