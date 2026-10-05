@@ -607,8 +607,8 @@
             <div class="card stat">
                 <div class="stat-info">
                     <small>Total Produk</small>
-                    <b>{{ $totalProduk }}</b>
-                    <em class="trend-{{ $trendProduk }}">@if($trendProduk === 'up')<img src="{{ asset('images/trending-up.svg') }}" alt="">@elseif($trendProduk === 'down')<img src="{{ asset('images/trending-down.svg') }}" alt="">@else<span style="font-size:13px">─</span>@endif {{ $diffProduk }}</em>
+                    <b id="stat-produk">{{ $totalProduk }}</b>
+                    <em id="trend-produk" class="trend-{{ $trendProduk }}">@if($trendProduk === 'up')<img src="{{ asset('images/trending-up.svg') }}" alt="">@elseif($trendProduk === 'down')<img src="{{ asset('images/trending-down.svg') }}" alt="">@else<span style="font-size:13px">─</span>@endif {{ $diffProduk }}</em>
                 </div>
                 <div class="ic"><img src="{{ asset('images/package.svg') }}" alt="Total Produk"></div>
             </div>
@@ -616,8 +616,8 @@
             <div class="card stat">
                 <div class="stat-info">
                     <small>Total Pesanan</small>
-                    <b>{{ $totalPemesanan }}</b>
-                    <em class="trend-{{ $trendPemesanan }}">@if($trendPemesanan === 'up')<img src="{{ asset('images/trending-up.svg') }}" alt="">@elseif($trendPemesanan === 'down')<img src="{{ asset('images/trending-down.svg') }}" alt="">@else<span style="font-size:13px">─</span>@endif {{ $diffPemesanan }}</em>
+                    <b id="stat-pesanan">{{ $totalPemesanan }}</b>
+                    <em id="trend-pesanan" class="trend-{{ $trendPemesanan }}">@if($trendPemesanan === 'up')<img src="{{ asset('images/trending-up.svg') }}" alt="">@elseif($trendPemesanan === 'down')<img src="{{ asset('images/trending-down.svg') }}" alt="">@else<span style="font-size:13px">─</span>@endif {{ $diffPemesanan }}</em>
                 </div>
                 <div class="ic"><img src="{{ asset('images/shopping-cart.svg') }}" alt="Total Pesanan"></div>
             </div>
@@ -625,8 +625,8 @@
             <div class="card stat">
                 <div class="stat-info">
                     <small>Total Pendapatan</small>
-                    <b class="stat-curr">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</b>
-                    <em class="trend-{{ $trendPendapatan }}">@if($trendPendapatan === 'up')<img src="{{ asset('images/trending-up.svg') }}" alt="">@elseif($trendPendapatan === 'down')<img src="{{ asset('images/trending-down.svg') }}" alt="">@else<span style="font-size:13px">─</span>@endif {{ $diffPendapatan }}</em>
+                    <b id="stat-pendapatan" class="stat-curr">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</b>
+                    <em id="trend-pendapatan" class="trend-{{ $trendPendapatan }}">@if($trendPendapatan === 'up')<img src="{{ asset('images/trending-up.svg') }}" alt="">@elseif($trendPendapatan === 'down')<img src="{{ asset('images/trending-down.svg') }}" alt="">@else<span style="font-size:13px">─</span>@endif {{ $diffPendapatan }}</em>
                 </div>
                 <div class="ic"><img src="{{ asset('images/dollar-sign.svg') }}" alt="Total Pendapatan"></div>
             </div>
@@ -634,8 +634,8 @@
             <div class="card stat">
                 <div class="stat-info">
                     <small>Total Pengguna</small>
-                    <b>{{ $totalPengguna }}</b>
-                    <em class="trend-{{ $trendPengguna }}">@if($trendPengguna === 'up')<img src="{{ asset('images/trending-up.svg') }}" alt="">@elseif($trendPengguna === 'down')<img src="{{ asset('images/trending-down.svg') }}" alt="">@else<span style="font-size:13px">─</span>@endif {{ $diffPengguna }}</em>
+                    <b id="stat-pengguna">{{ $totalPengguna }}</b>
+                    <em id="trend-pengguna" class="trend-{{ $trendPengguna }}">@if($trendPengguna === 'up')<img src="{{ asset('images/trending-up.svg') }}" alt="">@elseif($trendPengguna === 'down')<img src="{{ asset('images/trending-down.svg') }}" alt="">@else<span style="font-size:13px">─</span>@endif {{ $diffPengguna }}</em>
                 </div>
                 <div class="ic"><img src="{{ asset('images/users.svg') }}" alt="Total Pengguna"></div>
             </div>
@@ -801,26 +801,40 @@
     <script>
         const $ = id => document.getElementById(id);
 
-        const data7 = {
-            labels: {!! json_encode($chart7Labels) !!},
-            values: {!! json_encode($chart7Values) !!}
+        let currentChartData = {
+            '7': {
+                labels: {!! json_encode($chart7Labels) !!},
+                values: {!! json_encode($chart7Values) !!}
+            },
+            '30': {
+                labels: {!! json_encode($chart30Labels) !!},
+                values: {!! json_encode($chart30Values) !!}
+            }
         };
 
-        const data30 = {
-            labels: {!! json_encode($chart30Labels) !!},
-            values: {!! json_encode($chart30Values) !!}
-        };
+        function getSmartScale(maxVal) {
+            if (maxVal <= 0) return { step: 50000, maxValue: 250000 };
+            
+            // Tentukan target kelipatan yang rapi (10k, 25k, 50k, 100k, 250k, 500k, 1jt, dst)
+            const targetStep = maxVal / 4.5;
+            const magnitude = Math.pow(10, Math.floor(Math.log10(targetStep)));
+            const residual = targetStep / magnitude;
+            
+            let niceFactor;
+            if (residual <= 1.2) niceFactor = 1;
+            else if (residual <= 2.5) niceFactor = 2.5;
+            else if (residual <= 5) niceFactor = 5;
+            else niceFactor = 10;
+            
+            const step = Math.max(10000, Math.round(niceFactor * magnitude));
+            const maxValue = step * 5;
+            return { step, maxValue };
+        }
 
         function renderChart(labels, values) {
             const maxVal = Math.max(...values, 0);
-            let step = 100000;
-            if (maxVal > 5000000) step = 2000000;
-            else if (maxVal > 2000000) step = 1000000;
-            else if (maxVal > 1000000) step = 500000;
-            else if (maxVal > 500000) step = 200000;
-            else step = 100000;
+            const { step, maxValue } = getSmartScale(maxVal);
 
-            const maxValue = step * 5;
             const x0 = 82, x1 = 625, y0 = 225, h = 190;
             let s = '';
 
@@ -828,7 +842,7 @@
             for (let i = 0; i <= 5; i++) {
                 const yy = y0 - i * (h / 5);
                 const val = step * i;
-                const formattedVal = val === 0 ? 'Rp.0' : 'Rp.' + val.toLocaleString('id-ID');
+                const formattedVal = val === 0 ? 'Rp 0' : 'Rp ' + val.toLocaleString('id-ID');
 
                 s += `<line x1="${x0}" x2="${x1}" y1="${yy}" y2="${yy}" stroke="#F0EDE8"/>` +
                      `<text x="${x0-8}" y="${yy+4}" text-anchor="end" font-size="9" fill="#AAAAAA">${formattedVal}</text>`;
@@ -867,14 +881,139 @@
         function updateChart() {
             const rangeSelect = $('chartRangeSelect');
             const range = rangeSelect ? rangeSelect.value : '7';
-            if (range === '30') {
-                renderChart(data30.labels, data30.values);
-            } else {
-                renderChart(data7.labels, data7.values);
-            }
+            const activeData = currentChartData[range] || currentChartData['7'];
+            renderChart(activeData.labels, activeData.values);
         }
 
         updateChart();
+
+        // --- REALTIME POLLING ---
+        function getTrendIcon(trend) {
+            if (trend === 'up') {
+                return `<img src="{{ asset('images/trending-up.svg') }}" alt="">`;
+            } else if (trend === 'down') {
+                return `<img src="{{ asset('images/trending-down.svg') }}" alt="">`;
+            } else {
+                return `<span style="font-size:13px">─</span>`;
+            }
+        }
+
+        function updateTrend(elemId, trend, diffText) {
+            const el = $(elemId);
+            if (!el) return;
+            el.className = 'trend-' + trend;
+            el.innerHTML = `${getTrendIcon(trend)} ${diffText}`;
+        }
+
+        async function fetchRealtimeStats() {
+            try {
+                const response = await fetch('{{ route("dashboard.realtime") }}', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) return;
+
+                const res = await response.json();
+                if (res.status === 'success') {
+                    const s = res.stats;
+                    if ($('stat-produk')) $('stat-produk').textContent = s.totalProduk;
+                    if ($('stat-pesanan')) $('stat-pesanan').textContent = s.totalPemesanan;
+                    if ($('stat-pendapatan')) $('stat-pendapatan').textContent = s.totalPendapatan;
+                    if ($('stat-pengguna')) $('stat-pengguna').textContent = s.totalPengguna;
+
+                    updateTrend('trend-produk', s.trendProduk, s.diffProduk);
+                    updateTrend('trend-pesanan', s.trendPemesanan, s.diffPemesanan);
+                    updateTrend('trend-pendapatan', s.trendPendapatan, s.diffPendapatan);
+                    updateTrend('trend-pengguna', s.trendPengguna, s.diffPengguna);
+
+                    if (res.charts) {
+                        currentChartData['7'] = res.charts.chart7;
+                        currentChartData['30'] = res.charts.chart30;
+                        updateChart();
+                    }
+
+                    // Update Produk Paling Diminati
+                    if (res.produkTerlaris && $('pp')) {
+                        if (res.produkTerlaris.length === 0) {
+                            $('pp').innerHTML = '<p style="color: var(--mut); font-size: 13px;">Belum ada data produk terjual.</p>';
+                        } else {
+                            $('pp').innerHTML = res.produkTerlaris.map(p => `
+                                <div>
+                                    <span title="${p.nama}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px;">${p.nama}</span>
+                                    <span class="p">${p.harga}</span>
+                                    <div class="bar" style="width: 100%"><i style="width: ${p.bar_width}%"></i></div>
+                                    <small>${p.terjual} terjual</small>
+                                </div>
+                            `).join('');
+                        }
+                    }
+
+                    // Update Pesanan Terbaru Table
+                    if (res.pesananTerbaru && $('ord')) {
+                        if (res.pesananTerbaru.length === 0) {
+                            $('ord').innerHTML = '<tr><td colspan="4" style="text-align:center; color: var(--mut); padding: 20px;">Belum ada pesanan terbaru.</td></tr>';
+                        } else {
+                            $('ord').innerHTML = res.pesananTerbaru.map(o => `
+                                <tr>
+                                    <td>
+                                        <b>${o.order_no}</b>
+                                        <small>${o.tanggal}</small>
+                                    </td>
+                                    <td>
+                                        <b title="${o.nama_produk}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 210px; display: block;">
+                                            ${o.nama_produk_short}
+                                        </b>
+                                        <small>${o.extra_count > 0 ? `+${o.extra_count} produk lainnya` : o.customer}</small>
+                                    </td>
+                                    <td><b>${o.total_harga}</b></td>
+                                    <td style="text-align: left;">
+                                        <span class="b ${o.badge_class}">${o.status_label}</span>
+                                    </td>
+                                </tr>
+                            `).join('');
+                        }
+                    }
+
+                    // Update Stok Menipis Table
+                    if (res.stokMenipis && $('stk')) {
+                        if (res.stokMenipis.length === 0) {
+                            $('stk').innerHTML = '<tr><td colspan="3" style="text-align:center; color: var(--mut); padding: 28px 10px;">Semua stok produk masih aman (&ge; 16).</td></tr>';
+                        } else {
+                            $('stk').innerHTML = res.stokMenipis.map(item => `
+                                <tr>
+                                    <td>
+                                        <div class="it">
+                                            <div class="th">
+                                                ${item.foto_url 
+                                                    ? `<img src="${item.foto_url}" alt="${item.nama_produk}" class="thumb-img">`
+                                                    : `<img src="{{ asset('images/package.svg') }}" alt="" class="thumb-icon" style="filter: brightness(0) saturate(100%) invert(64%) sepia(35%) saturate(541%) hue-rotate(356deg) brightness(91%) contrast(87%);">`
+                                                }
+                                            </div>
+                                            <div style="min-width: 0;">
+                                                <b title="${item.nama_produk}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 210px; display: block;">${item.nama_produk_short}</b>
+                                                <small>${item.kategori}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="rd">${item.stok}</td>
+                                    <td style="text-align:center">
+                                        <span class="b r">Hampir Habis</span>
+                                    </td>
+                                </tr>
+                            `).join('');
+                        }
+                    }
+                }
+            } catch (e) {
+                // Background poll silent catch
+            }
+        }
+
+        // Jalankan auto-update setiap 8 detik
+        setInterval(fetchRealtimeStats, 8000);
     </script>
 </body>
 </html>

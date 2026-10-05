@@ -14,6 +14,10 @@ Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'inde
     ->middleware(['auth', 'admin'])
     ->name('dashboard');
 
+Route::get('/dashboard/realtime', [App\Http\Controllers\DashboardController::class, 'realtimeStats'])
+    ->middleware(['auth', 'admin'])
+    ->name('dashboard.realtime');
+
 Route::resource('produk', App\Http\Controllers\ProdukController::class)
     ->middleware(['auth', 'admin']);
 

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index()
+    private function getDashboardData()
     {
         // 1. Metrik Utama
         $totalProduk = Produk::count();
@@ -39,11 +39,7 @@ class DashboardController extends Controller
         $diffPemesanan = ($diffPesananNum >= 0 ? '+' : '') . $diffPesananNum . ' dari bulan lalu';
         $trendPemesanan = $diffPesananNum > 0 ? 'up' : ($diffPesananNum < 0 ? 'down' : 'neutral');
 
-        // Selisih Pendapatan Hari Ini vs Kemarin / Rata-rata
-        $todayIncome = Pemesanan::where('status_bayar', 'berhasil')
-            ->whereDate('tanggal_pesan', Carbon::today())
-            ->sum('total_harga');
-
+        // Selisih Pendapatan
         $pendapatanThisMonth = Pemesanan::where('status_bayar', 'berhasil')
             ->where('created_at', '>=', $startThisMonth)
             ->sum('total_harga');
@@ -122,7 +118,7 @@ class DashboardController extends Controller
             });
         }
 
-        return view('dashboard', compact(
+        return compact(
             'totalProduk',
             'totalPemesanan',
             'totalPendapatan',
@@ -142,6 +138,104 @@ class DashboardController extends Controller
             'pesananTerbaru',
             'stokMenipis',
             'produkTerlaris'
-        ));
+        );
+    }
+
+    public function index()
+    {
+        $data = $this->getDashboardData();
+        return view('dashboard', $data);
+    }
+
+    public function realtimeStats()
+    {
+        $data = $this->getDashboardData();
+
+        // Format Pesanan Terbaru
+        $pesananTerbaruFormatted = $data['pesananTerbaru']->map(function ($order) {
+            $firstItem = $order->details->first();
+            $namaProduk = $firstItem && $firstItem->produk ? $firstItem->produk->nama_produk : 'Pesanan Rabita';
+            $extraCount = $order->details->count() - 1;
+
+            $badgeClass = 'y';
+            $statusLabel = ucfirst($order->status_pesanan);
+            if ($order->status_pesanan === 'selesai') {
+                $badgeClass = 'g';
+            } elseif ($order->status_pesanan === 'batal') {
+                $badgeClass = 'r';
+            }
+
+            return [
+                'order_no'         => '#ORD-' . str_pad($order->pemesanan_id, 4, '0', STR_PAD_LEFT),
+                'tanggal'          => Carbon::parse($order->tanggal_pesan)->format('d M Y, H:i'),
+                'nama_produk'      => $namaProduk,
+                'nama_produk_short'=> \Illuminate\Support\Str::limit($namaProduk, 28),
+                'extra_count'      => $extraCount,
+                'customer'         => $order->user->username ?? 'Customer',
+                'total_harga'      => 'Rp ' . number_format($order->total_harga, 0, ',', '.'),
+                'badge_class'      => $badgeClass,
+                'status_label'     => $statusLabel,
+            ];
+        });
+
+        // Format Stok Menipis
+        $stokMenipisFormatted = $data['stokMenipis']->map(function ($item) {
+            $fotoPath = $item->gambar_produk ? public_path('assets/image/produk/' . $item->gambar_produk) : null;
+            $fotoUrl  = ($fotoPath && file_exists($fotoPath)) ? asset('assets/image/produk/' . $item->gambar_produk) : null;
+
+            return [
+                'nama_produk'       => $item->nama_produk,
+                'nama_produk_short' => \Illuminate\Support\Str::limit($item->nama_produk, 26),
+                'kategori'          => $item->kategori->nama_kategori ?? 'Sasirangan',
+                'stok'              => $item->stok,
+                'foto_url'          => $fotoUrl,
+            ];
+        });
+
+        // Format Produk Terlaris
+        $produkTerlarisFormatted = $data['produkTerlaris']->map(function ($item) {
+            $nama = $item->produk->nama_produk ?? 'Produk Rabita';
+            $harga = $item->produk->harga ?? 0;
+            $terjual = $item->total_terjual ?? 1;
+            $barWidth = min(100, max(20, $terjual * 15));
+
+            return [
+                'nama'       => $nama,
+                'harga'      => 'Rp ' . number_format($harga, 0, ',', '.'),
+                'terjual'    => $terjual,
+                'bar_width'  => $barWidth,
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'stats' => [
+                'totalProduk'     => number_format($data['totalProduk'], 0, ',', '.'),
+                'totalPemesanan'  => number_format($data['totalPemesanan'], 0, ',', '.'),
+                'totalPendapatan' => 'Rp ' . number_format($data['totalPendapatan'], 0, ',', '.'),
+                'totalPengguna'   => number_format($data['totalPengguna'], 0, ',', '.'),
+                'diffProduk'      => $data['diffProduk'],
+                'diffPemesanan'   => $data['diffPemesanan'],
+                'diffPendapatan'  => $data['diffPendapatan'],
+                'diffPengguna'    => $data['diffPengguna'],
+                'trendProduk'     => $data['trendProduk'],
+                'trendPemesanan'  => $data['trendPemesanan'],
+                'trendPendapatan' => $data['trendPendapatan'],
+                'trendPengguna'   => $data['trendPengguna'],
+            ],
+            'charts' => [
+                'chart7' => [
+                    'labels' => $data['chart7Labels'],
+                    'values' => $data['chart7Values'],
+                ],
+                'chart30' => [
+                    'labels' => $data['chart30Labels'],
+                    'values' => $data['chart30Values'],
+                ],
+            ],
+            'pesananTerbaru'  => $pesananTerbaruFormatted,
+            'stokMenipis'     => $stokMenipisFormatted,
+            'produkTerlaris'  => $produkTerlarisFormatted,
+        ]);
     }
 }
