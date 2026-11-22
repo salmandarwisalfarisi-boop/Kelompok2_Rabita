@@ -19,14 +19,12 @@ class User extends Authenticatable
         'password',
         'no_hp',
         'level',
-        'remmber_token',
         'reset_token',
         'reset_token_expired',
     ];
 
     protected $hidden = [
         'password',
-        'remmber_token',
         'reset_token',
     ];
 
@@ -40,12 +38,7 @@ class User extends Authenticatable
 
     public function getRememberTokenName()
     {
-        return 'remmber_token';
-    }
-
-    public function alamat()
-    {
-        return $this->hasMany(Alamat::class, 'user_id', 'user_id');
+        return '';
     }
 
     public function keranjang()

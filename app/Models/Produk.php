@@ -11,18 +11,17 @@ class Produk extends Model
 
     protected $table = 'tb_produk';
     protected $primaryKey = 'produk_id';
+    public $timestamps = false;
 
     protected $fillable = [
         'kategori_id',
         'nama_produk',
-        'gambar_produk',
-        'gambar_kanan',
-        'gambar_kiri',
-        'gambar_dalam',
+        'slug',
         'deskripsi_produk',
         'harga',
-        'stok',
         'berat_gram',
+        'ukuran',
+        'material',
         'status',
     ];
 
@@ -31,13 +30,26 @@ class Produk extends Model
         return $this->belongsTo(Kategori::class, 'kategori_id', 'kategori_id');
     }
 
-    public function keranjang()
+    public function motif()
     {
-        return $this->hasMany(Keranjang::class, 'produk_id', 'produk_id');
+        return $this->hasMany(Motif::class, 'produk_id', 'produk_id');
     }
 
-    public function pemesananDetail()
+    // Accessor: Gambar produk utama dari motif pertama
+    public function getGambarProdukAttribute()
     {
-        return $this->hasMany(PemesananDetail::class, 'produk_id', 'produk_id');
+        return $this->motif->first()?->gambar_depan;
+    }
+
+    // Accessor: Total stok dari semua motif
+    public function getStokAttribute()
+    {
+        return $this->motif->sum('stok');
+    }
+
+    // Accessor: Total motif yang dimiliki
+    public function getTotalMotifAttribute()
+    {
+        return $this->motif->count();
     }
 }

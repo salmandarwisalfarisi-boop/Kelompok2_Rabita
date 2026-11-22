@@ -11,10 +11,12 @@ class Kategori extends Model
 
     protected $table = 'tb_kategori';
     protected $primaryKey = 'kategori_id';
+    public $timestamps = false;
 
     protected $fillable = [
         'nama_kategori',
         'slug',
+        'gambar',
     ];
 
     public function produk()

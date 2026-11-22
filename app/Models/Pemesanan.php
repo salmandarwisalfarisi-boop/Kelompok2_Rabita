@@ -14,44 +14,44 @@ class Pemesanan extends Model
 
     protected $fillable = [
         'user_id',
-        'alamat_id',
-        'total_harga',
+        'nama_penerima',
+        'no_hp_penerima',
+        'provinsi',
+        'kota',
+        'kecamatan',
+        'alamat_lengkap',
+        'kode_pos',
         'kurir',
         'layanan_kurir',
         'ongkir',
         'estimasi_tiba',
-        'metode_bayar',
-        'status_bayar',
-        'status_pesanan',
-        'tanggal_pesan',
+        'total_harga',
+        'bukti_bayar',
         'waktu_bayar',
+        'status_pesanan',
+        'no_resi',
+        'catatan',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'tanggal_pesan' => 'datetime',
-            'waktu_bayar' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'waktu_bayar' => 'datetime',
+        'total_harga' => 'integer',
+        'ongkir' => 'integer',
+    ];
 
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 
-    public function alamat()
-    {
-        return $this->belongsTo(Alamat::class, 'alamat_id', 'alamat_id');
-    }
-
-    public function pemesananDetail()
-    {
-        return $this->hasMany(PemesananDetail::class, 'pemesanan_id', 'pemesanan_id');
-    }
-
     public function details()
     {
         return $this->hasMany(PemesananDetail::class, 'pemesanan_id', 'pemesanan_id');
+    }
+
+    // Alias for compatibility
+    public function pemesananDetail()
+    {
+        return $this->details();
     }
 }

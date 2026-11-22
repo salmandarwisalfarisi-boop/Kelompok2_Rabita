@@ -11,12 +11,14 @@ class PemesananDetail extends Model
 
     protected $table = 'tb_pemesanan_detail';
     protected $primaryKey = 'detail_id';
+    public $timestamps = false;
 
     protected $fillable = [
         'pemesanan_id',
-        'produk_id',
+        'motif_id',
         'jumlah',
         'harga_satuan',
+        'subtotal',
     ];
 
     public function pemesanan()
@@ -24,8 +26,14 @@ class PemesananDetail extends Model
         return $this->belongsTo(Pemesanan::class, 'pemesanan_id', 'pemesanan_id');
     }
 
-    public function produk()
+    public function motif()
     {
-        return $this->belongsTo(Produk::class, 'produk_id', 'produk_id');
+        return $this->belongsTo(Motif::class, 'motif_id', 'motif_id');
+    }
+
+    // Helper: Mengakses produk langsung melalui motif
+    public function getProdukAttribute()
+    {
+        return $this->motif?->produk;
     }
 }
