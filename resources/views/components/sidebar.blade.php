@@ -43,7 +43,8 @@
         border-radius: 5px;
         color: #FFFFFF;
         text-decoration: none;
-        font-size: 16.5px;
+        font-size: 16px;
+        font-weight: 400;
         font-family: Lato, "Segoe UI", Arial, sans-serif;
         transition: all 0.2s ease;
     }
@@ -68,37 +69,6 @@
         flex: none;
         display: block;
         object-fit: contain;
-    }
-
-    .sidebar-logout {
-        padding: 18px;
-        margin-top: auto;
-    }
-
-    .sidebar-logout form {
-        margin: 0;
-    }
-
-    .sidebar-logout button {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        width: 100%;
-        height: 37px;
-        padding: 0 12px;
-        border: 1px solid rgba(222, 192, 150, 0.3);
-        border-radius: 5px;
-        background: transparent;
-        color: #DEC096;
-        font-family: Lato, "Segoe UI", Arial, sans-serif;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .sidebar-logout button:hover {
-        background: rgba(222, 192, 150, 0.15);
-        border-color: #DEC096;
     }
 
     @media (max-width: 760px) {
@@ -144,35 +114,37 @@
             <span>Produk</span>
         </a>
 
-        <a href="#">
+        <a href="{{ route('kategori.index') }}"
+           class="{{ request()->is('kategori*') ? 'on' : '' }}">
             <img src="{{ asset('images/reicon_category.svg') }}" alt="Kategori">
             <span>Kategori</span>
         </a>
 
-        <a href="#">
+        <a href="{{ route('pesanan.index') }}"
+           class="{{ request()->is('pesanan*') ? 'on' : '' }}">
             <img src="{{ asset('images/Vector.svg') }}" alt="Pesanan">
             <span>Pesanan</span>
         </a>
 
-        <a href="#">
-            <img src="{{ asset('images/Vector (1).svg') }}" alt="Pengguna">
+        <a href="{{ route('blog.index') }}"
+           class="{{ request()->is('blog*') ? 'on' : '' }}">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            <span>Blog</span>
+        </a>
+
+        <a href="{{ route('pengguna.index') }}"
+           class="{{ request()->is('pengguna*') ? 'on' : '' }}">
+            <img src="{{ asset('assets/image/Vector (1).svg') }}" alt="Pengguna">
             <span>Pengguna</span>
         </a>
     </nav>
 
-    <div class="sidebar-logout">
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                    <polyline points="16 17 21 12 16 7"></polyline>
-                    <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-                <span>Logout</span>
-            </button>
-        </form>
-    </div>
 </aside>
 
 <script>
