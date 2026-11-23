@@ -11,6 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->validateCsrfTokens(except: [
+            'rajaongkir/*',
+        ]);
         $middleware->alias([
             'admin'   => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'no-back' => \App\Http\Middleware\PreventBackHistory::class,
