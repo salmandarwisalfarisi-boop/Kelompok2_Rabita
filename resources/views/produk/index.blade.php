@@ -2,215 +2,292 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Produk - Rabita Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Daftar Produk – Rabita</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #F5F5F0;
-            --card: #FFFFFF;
+            --card-bg: #FFFFFF;
             --gold: #B79361;
+            --gold-hover: #9c7847;
             --gold-light: #DEC096;
+            --dark-header: #191919;
             --dark-sidebar: #191919;
-            --tx: #1A1A1A;
-            --tx-mid: #555555;
-            --mut: #888888;
-            --mut-light: #AAAAAA;
-            --placeholder: #BBBBBB;
-            --ln: #F0EDE8;
-            --border: #E8E2D9;
-            --footer-bg: #FAFAF8;
+            --text-dark: #1A1A1A;
+            --text-muted: #888888;
+            --border-light: #E8E2D9;
+            --border-ln: #F0EDE8;
+            box-sizing: border-box;
         }
 
-        * {
+        *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
         body {
-            font-family: Inter, Arial, sans-serif;
-            background: var(--bg);
-            color: var(--tx);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-dark);
+            min-height: 100vh;
             display: flex;
+        }
+
+        /* --- Layout Container --- */
+        .layout-main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
         }
 
-        /* ================================
-           SIDEBAR
-        ================================ */
-        aside {
-            width: 206px;
-            flex: none;
-            background: var(--dark-sidebar);
-            color: #fff;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .lg {
+        /* --- Topbar --- */
+        .topbar {
             height: 83px;
+            background-color: var(--dark-header);
             display: flex;
             align-items: center;
-            justify-content: center;
-            border-bottom: 1px solid var(--gold-light);
+            justify-content: flex-end;
+            padding: 0 34px;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+            border-bottom: 1px solid #B79361;
         }
 
-        .lg img {
-            height: 79px;
+        .user-pill-container {
+            position: relative;
         }
 
-        nav {
-            padding: 28px 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            flex: 1;
-        }
-
-        nav a {
+        .user-pill-btn {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 0 10px;
-            height: 37px;
-            border-radius: 5px;
-            color: #fff;
-            text-decoration: none;
-            font-size: 16.5px;
-            transition: all .2s;
+            height: 48px;
+            padding: 0 16px 0 6px;
+            background-color: #FFFFFF;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            outline: none;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
 
-        nav a:hover {
-            background: var(--gold-light);
+        .user-pill-btn:hover {
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
         }
 
-        nav a.on {
-            background: var(--gold);
+        .avatar-circle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background-color: var(--gold);
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            color: #FFFFFF;
         }
 
-        nav img {
-            width: 22px;
-            height: 22px;
+        .avatar-circle svg {
+            width: 18px;
+            height: 18px;
         }
 
-        .sidebar-logout {
-            padding: 18px;
+        .user-text {
+            text-align: left;
+            line-height: 1.25;
+            display: flex;
+            flex-direction: column;
         }
 
-        .sidebar-logout form {
-            margin: 0;
+        .user-name {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            color: #1A1A1A;
         }
 
-        .sidebar-logout button {
+        .user-role {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--gold);
+        }
+
+        .user-chevron {
+            color: var(--gold);
+            transition: transform 0.2s ease;
+            margin-left: 2px;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            width: 190px;
+            background: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            border: 1px solid #ECECEC;
+            padding: 8px 0;
+            z-index: 100;
+            display: none;
+        }
+
+        .user-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-user-info {
+            padding: 10px 16px;
+            border-bottom: 1px solid #F0F0F0;
+        }
+
+        .dropdown-user-info p {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            color: #888888;
+        }
+
+        .dropdown-user-info b {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            color: #1A1A1A;
+            display: block;
+        }
+
+        .dropdown-item {
             display: flex;
             align-items: center;
             gap: 10px;
             width: 100%;
-            height: 37px;
-            padding: 0 12px;
-            border: 1px solid rgba(222, 192, 150, .3);
-            border-radius: 5px;
+            padding: 10px 16px;
+            border: none;
             background: transparent;
-            color: var(--gold-light);
-            font-size: 14px;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            color: #EF4444;
             cursor: pointer;
-            transition: all .2s;
+            text-decoration: none;
+            transition: background-color 0.15s ease;
         }
 
-        .sidebar-logout button:hover {
-            background: rgba(222, 192, 150, .15);
+        .dropdown-item:hover {
+            background-color: #FEF2F2;
         }
 
-        /* ================================
-           MAIN
-        ================================ */
+        /* --- Main Content --- */
         main {
             flex: 1;
-            padding: 28px 32px 40px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            padding: 28px 36px 40px;
         }
 
-        /* --- Page Title --- */
-        .page-title h1 {
+        .page-header {
+            margin-bottom: 22px;
+        }
+
+        .page-title {
+            font-family: 'Inter', sans-serif;
             font-size: 22px;
             font-weight: 700;
-            color: var(--tx);
+            color: var(--text-dark);
+            line-height: 1.2;
         }
 
-        .page-title p {
+        .page-subtitle {
+            font-family: 'Inter', sans-serif;
             font-size: 13px;
-            color: var(--mut);
-            margin-top: 3px;
+            font-weight: 400;
+            color: var(--text-muted);
+            margin-top: 4px;
         }
 
-        /* --- Toolbar (search, filter, add) --- */
+        /* --- Filter Toolbar --- */
         .toolbar {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 14px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .search-wrap {
             position: relative;
-            flex: 0 0 260px;
+            flex: 0 0 280px;
+            max-width: 100%;
         }
 
         .search-wrap svg {
             position: absolute;
-            left: 11px;
+            left: 12px;
             top: 50%;
             transform: translateY(-50%);
             width: 16px;
             height: 16px;
-            color: var(--placeholder);
+            color: #9A9A9A;
         }
 
-        .search-wrap input {
+        .search-input {
             width: 100%;
-            padding: 9px 14px 9px 34px;
-            border: 1.5px solid var(--border);
-            border-radius: 6px;
+            height: 40px;
+            padding: 0 14px 0 38px;
+            border: 1.2px solid var(--border-light);
+            border-radius: 8px;
+            font-family: inherit;
             font-size: 13px;
-            font-family: Inter, Arial, sans-serif;
-            background: var(--card);
-            color: var(--tx);
+            background-color: #FFFFFF;
+            color: var(--text-dark);
             outline: none;
-            transition: border .2s;
+            transition: border-color 0.15s ease;
         }
 
-        .search-wrap input::placeholder {
-            color: var(--placeholder);
+        .search-input::placeholder {
+            color: #BBBBBB;
         }
 
-        .search-wrap input:focus {
+        .search-input:focus {
             border-color: var(--gold);
         }
 
-        .toolbar select {
-            padding: 9px 32px 9px 12px;
-            border: 1.5px solid var(--border);
-            border-radius: 6px;
-            font-size: 13px;
-            font-family: Inter, Arial, sans-serif;
-            color: var(--tx-mid);
-            background: var(--card);
-            outline: none;
-            cursor: pointer;
+        .select-filter-wrap {
+            position: relative;
+            display: inline-block;
+        }
+
+        .select-filter {
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%23888' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            transition: border .2s;
+            -webkit-appearance: none;
+            height: 40px;
+            padding: 0 36px 0 16px;
+            border: 1.2px solid var(--border-light);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 13px;
+            background-color: #FFFFFF;
+            color: #555555;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.15s ease;
         }
 
-        .toolbar select:focus {
+        .select-filter:focus {
             border-color: var(--gold);
+        }
+
+        .select-filter-wrap svg {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #666666;
         }
 
         .spacer {
@@ -220,166 +297,159 @@
         .btn-add {
             display: inline-flex;
             align-items: center;
-            gap: 7px;
-            background: var(--gold);
-            color: #fff;
-            padding: 9px 18px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 14px;
+            gap: 8px;
+            height: 40px;
+            padding: 0 20px;
+            background-color: var(--gold);
+            color: #FFFFFF;
+            font-family: inherit;
+            font-size: 13px;
             font-weight: 600;
+            border-radius: 8px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
             white-space: nowrap;
-            transition: background .2s;
         }
 
         .btn-add:hover {
-            background: #a07c4c;
+            background-color: var(--gold-hover);
         }
 
-        /* --- Alert --- */
-        .alert {
-            padding: 12px 18px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
+        /* --- Alert Notification --- */
         .alert-success {
-            background: #dcfce7;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-        }
-
-        /* ================================
-           TABLE CARD
-        ================================ */
-        .table-card {
-            background: var(--card);
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        /* Gold header */
-        thead tr {
-            background: var(--gold);
-        }
-
-        th {
-            padding: 12px 16px;
-            text-align: left;
+            padding: 12px 18px;
+            background-color: #DCFCE7;
+            color: #16A34A;
+            border: 1px solid #BBF7D0;
+            border-radius: 8px;
             font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        /* --- Table Container --- */
+        .table-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            border: none;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .produk-table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        /* Thead Cokelat/Emas Sesuai Figma */
+        .produk-table thead tr {
+            background-color: var(--gold);
+        }
+
+        .produk-table th {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 11px;
             font-weight: 600;
-            color: #fff;
+            color: #FFFFFF;
             white-space: nowrap;
         }
 
-        th.center,
-        td.center {
+        .produk-table th.center {
             text-align: center;
         }
 
-        td {
-            padding: 13px 16px;
-            font-size: 13px;
-            color: var(--tx);
-            border-bottom: 1px solid var(--ln);
+        .produk-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-ln);
             vertical-align: middle;
+            font-size: 13px;
+            font-weight: 400;
+            color: var(--text-dark);
         }
 
-        tr:last-child td {
+        .produk-table tr:last-child td {
             border-bottom: none;
         }
 
-        tr:hover td {
-            background: #FAFAF8;
+        .produk-table tr:hover td {
+            background-color: #FAFAF8;
         }
 
-        /* --- No column --- */
-        td.no {
-            color: var(--mut);
-            font-size: 13px;
-            width: 48px;
-        }
-
-        /* --- Produk cell --- */
-        .produk-cell {
+        /* Produk Info Cell */
+        .cell-product {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
         }
 
-        .produk-img {
-            width: 44px;
-            height: 44px;
+        .thumb-box {
+            width: 48px;
+            height: 48px;
             border-radius: 6px;
-            object-fit: cover;
-            background: #f0ede8;
-            flex: none;
-        }
-
-        .produk-name {
-            font-weight: 600;
-            font-size: 13px;
-            color: var(--tx);
-        }
-
-        .produk-sku {
-            font-size: 11px;
-            color: var(--mut-light);
-            margin-top: 2px;
-        }
-
-        /* --- Price & stock --- */
-        td.harga {
-            font-weight: 600;
-            color: var(--tx);
-            white-space: nowrap;
-        }
-
-        td.kategori {
-            white-space: nowrap;
-            max-width: 220px;
             overflow: hidden;
-            text-overflow: ellipsis;
+            background-color: #F5F5F0;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border: 1px solid #ECECEC;
         }
 
-        td.stok-warn {
-            color: #EF4444;
-            font-weight: 700;
+        .thumb-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
-        /* --- Badges --- */
-        .badge {
+        .thumb-box svg {
+            width: 22px;
+            height: 22px;
+            color: #888888;
+        }
+
+        .product-name {
+            font-weight: 400;
+            color: var(--text-dark);
+            font-size: 13px;
+            line-height: 1.3;
+        }
+
+        .badge-status {
             display: inline-block;
-            padding: 3px 12px;
-            border-radius: 20px;
-            font-size: 12px;
+            padding: 3px 14px;
+            border-radius: 9999px;
+            font-size: 11px;
             font-weight: 600;
+            text-align: center;
+            white-space: nowrap;
         }
 
-        .badge-aktif {
-            background: #DCFCE7;
+        .badge-status.aktif {
+            background-color: #DCFCE7;
             color: #16A34A;
         }
 
-        .badge-sold_out {
-            background: #fee2e2;
-            color: #991b1b;
+        .badge-status.sold_out {
+            background-color: #FEE2E2;
+            color: #EF4444;
         }
 
-        .badge-arsip {
-            background: #f3f4f6;
-            color: #6b7280;
+        .badge-status.arsip {
+            background-color: #F3F4F6;
+            color: #6B7280;
         }
 
-        /* --- Action buttons --- */
-        .actions {
+        /* Action Buttons */
+        .action-group {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -390,658 +460,397 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             border-radius: 6px;
             border: none;
             cursor: pointer;
+            transition: opacity 0.15s ease, transform 0.1s ease;
             text-decoration: none;
-            transition: opacity .2s;
         }
 
         .btn-action:hover {
-            opacity: .75;
+            opacity: 0.85;
+            transform: scale(1.04);
         }
 
-        .btn-action img {
-            width: 16px;
-            height: 16px;
+        .btn-action.view {
+            background-color: #FFEFD9;
+            color: #EB9825;
         }
 
-        .btn-action-view {
-            background: #FEF9C3;
-            color: #854D0E;
+        .btn-action.edit {
+            background-color: #F0F9FF;
+            color: #2563EB;
         }
 
-        .btn-action-view svg {
-            width: 17px;
-            height: 17px;
+        .btn-action.delete {
+            background-color: #FEF2F2;
+            color: #EF4444;
         }
 
-        .btn-action-edit {
-            background: #F0F9FF;
-        }
-
-        .btn-action-del {
-            background: #FEF2F2;
-        }
-
-        /* ================================
-           MODAL DETAIL
-        ================================ */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.45);
-            backdrop-filter: blur(2px);
-            z-index: 9999;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal-overlay.open {
-            display: flex;
-        }
-
-        .modal-card {
-            background: #fff;
-            border-radius: 14px;
-            max-width: 680px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            animation: modalFadeIn .2s ease-out;
-        }
-
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(12px) scale(0.98); }
-            to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            background: #fff;
-            z-index: 10;
-        }
-
-        .modal-header h3 {
-            margin: 0;
-            font-size: 17px;
-            font-weight: 700;
-            color: var(--tx);
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--mut);
-            padding: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            transition: all .15s;
-        }
-
-        .modal-close:hover {
-            color: var(--tx);
-            background: #F0EDE8;
-        }
-
-        .modal-body {
-            padding: 24px;
-        }
-
-        .modal-section-title {
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            color: var(--gold);
-            margin: 0 0 12px;
-        }
-
-        /* Foto 4 sisi di modal */
-        .modal-photos {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        .modal-photo-item {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .modal-photo-thumb {
-            width: 100%;
-            aspect-ratio: 1;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-            background: #FAFAF8;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-photo-thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .modal-photo-thumb .empty-thumb {
-            font-size: 11px;
-            color: var(--mut);
-            text-align: center;
-            padding: 8px;
-        }
-
-        .modal-photo-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--tx);
-            text-align: center;
-        }
-
-        /* Detail info grid */
-        .modal-info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
-            background: #FAFAF8;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
-        }
-
-        .info-row {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .info-label {
-            font-size: 12px;
-            color: var(--mut);
-            font-weight: 500;
-        }
-
-        .info-value {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--tx);
-        }
-
-        .modal-desc-box {
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 14px;
-            font-size: 13.5px;
-            color: var(--tx-mid);
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-
-        /* ================================
-           FOOTER / PAGINATION
-        ================================ */
+        /* --- Footer Pagination Sesuai Figma --- */
         .table-footer {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 16px;
-            background: var(--footer-bg);
-            border-top: 1px solid var(--border);
-            font-size: 13px;
-            color: var(--mut);
+            padding: 16px 20px;
+            background-color: #FFFFFF;
+            border-top: 1px solid var(--border-light);
+            font-size: 12px;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
-        .pagination {
+        .pagination-container {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
         }
 
-        .page-btn {
+        .page-link-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 30px;
-            height: 30px;
-            border-radius: 5px;
-            border: 1.5px solid var(--border);
-            background: var(--card);
-            color: var(--tx-mid);
-            font-size: 13px;
+            min-width: 32px;
+            height: 32px;
+            padding: 0 8px;
+            border-radius: 6px;
+            border: 1px solid #E8E2D9;
+            background-color: #FFFFFF;
+            color: #555555;
+            font-size: 12px;
             font-weight: 500;
-            cursor: pointer;
             text-decoration: none;
-            transition: all .2s;
+            transition: all 0.15s ease;
         }
 
-        .page-btn:hover {
+        .page-link-btn:hover {
             border-color: var(--gold);
             color: var(--gold);
         }
 
-        .page-btn.active {
-            background: var(--gold);
+        .page-link-btn.active {
+            background-color: var(--gold);
             border-color: var(--gold);
-            color: #fff;
-            font-weight: 700;
+            color: #FFFFFF;
+            font-weight: 600;
         }
 
-        .page-btn.disabled {
-            opacity: .4;
-            cursor: not-allowed;
+        .page-link-btn.disabled {
+            opacity: 0.4;
             pointer-events: none;
+            cursor: not-allowed;
         }
 
-        /* --- Empty state --- */
-        .empty {
-            text-align: center;
-            padding: 64px 20px;
-            color: var(--mut);
-        }
+        /* --- Responsive Queries --- */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
 
-        .empty svg {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 12px;
-            opacity: .35;
-        }
+            .topbar {
+                height: 64px;
+                padding: 0 16px;
+            }
 
-        .empty p {
-            font-size: 14px;
-        }
+            main {
+                padding: 20px 16px;
+            }
 
-        .empty a {
-            color: var(--gold);
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-wrap,
+            .select-filter-wrap,
+            .select-filter,
+            .btn-add {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- SIDEBAR (Komponen Valid Sesuai Figma) -->
     @include('components.sidebar')
 
-    <main>
+    <!-- MAIN WRAPPER -->
+    <div class="layout-main">
 
-        {{-- Page Title --}}
-        <div class="page-title">
-            <h1>Daftar Produk</h1>
-            <p>Kelola semua produk yang tersedia di toko Anda</p>
-        </div>
+        <!-- TOPBAR PERSIS FIGMA -->
+        <header class="topbar">
+            <div class="user-pill-container">
+                <button type="button" class="user-pill-btn" id="userPillBtn" aria-label="Menu Pengguna">
+                    <span class="avatar-circle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </span>
+                    <span class="user-text">
+                        <span class="user-name">{{ Auth::user()->username ?? 'Salman' }}</span>
+                        <span class="user-role">{{ ucfirst(Auth::user()->level ?? 'Administrator') }}</span>
+                    </span>
+                    <svg class="user-chevron" id="userPillChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
 
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="dropdown-user-info">
+                        <p>Login sebagai:</p>
+                        <b>{{ Auth::user()->username ?? 'Salman' }}</b>
+                        <span style="font-size: 11px; color: var(--gold);">{{ Auth::user()->email ?? 'admin@rabita.com' }}</span>
+                    </div>
 
-        {{-- Toolbar --}}
-        <div class="toolbar">
-            <div class="search-wrap">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <input type="text" id="searchInput" placeholder="Cari produk..." oninput="filterTable()">
+                    <a href="{{ route('admin.pengaturan') }}" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 16px; border: none; background: transparent; font-size: 13px; font-family: 'Inter', sans-serif; color: #1A1A1A; cursor: pointer; text-decoration: none; transition: background-color 0.15s ease;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        Pengaturan
+                    </a>
+
+                    <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                        @csrf
+                        <button type="submit" class="dropdown-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                            <span>Keluar</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN BODY -->
+        <main>
+            <!-- Title -->
+            <div class="page-header">
+                <h1 class="page-title">Daftar Produk</h1>
+                <p class="page-subtitle">Kelola semua produk yang tersedia di toko Anda</p>
             </div>
 
-            <select id="filterKategori" onchange="filterTable()">
-                <option value="">Semua Kategori</option>
-                @foreach ($kategoriList as $k)
-                    <option value="{{ $k->nama_kategori }}">{{ $k->nama_kategori }}</option>
-                @endforeach
-            </select>
-
-            <select id="filterStatus" onchange="filterTable()">
-                <option value="">Semua Status</option>
-                <option value="aktif">Aktif</option>
-                <option value="sold_out">Sold Out</option>
-                <option value="arsip">Arsip</option>
-            </select>
-
-            <div class="spacer"></div>
-
-            <a href="{{ route('produk.create') }}" class="btn-add">
-                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Tambah Produk
-            </a>
-        </div>
-
-        {{-- Table --}}
-        <div class="table-card">
-            @if ($produk->isEmpty())
-                <div class="empty">
-                    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"></path>
-                    </svg>
-                    <p>Belum ada produk. <a href="{{ route('produk.create') }}">Tambah sekarang</a></p>
-                </div>
-            @else
-                <table id="produkTable">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Produk</th>
-                            <th>Kategori</th>
-                            <th>Harga</th>
-                            <th class="center">Stok</th>
-                            <th class="center">Status</th>
-                            <th class="center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        @foreach ($produk as $i => $p)
-                            @php
-                                $imgPath = public_path('assets/image/produk/' . $p->gambar_produk);
-                                $imgSrc  = file_exists($imgPath)
-                                    ? asset('assets/image/produk/' . $p->gambar_produk)
-                                    : null;
-                                $labelStatus = $p->status === 'aktif' ? 'Aktif'
-                                    : ($p->status === 'sold_out' ? 'Sold Out' : 'Arsip');
-                            @endphp
-                            <tr data-nama="{{ strtolower($p->nama_produk) }}"
-                                data-kategori="{{ $p->kategori->nama_kategori ?? '' }}"
-                                data-status="{{ $p->status }}">
-                                <td class="no">{{ $i + 1 }}</td>
-                                <td>
-                                    <div class="produk-cell">
-                                        @if($imgSrc)
-                                            <img src="{{ $imgSrc }}" alt="{{ $p->nama_produk }}" class="produk-img" style="object-fit:cover;">
-                                        @else
-                                            <div class="produk-img" style="display:grid; place-items:center; background:#F5F0E8; color:#B79361; border-radius:6px; flex:none;">
-                                                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                                </svg>
-                                            </div>
-                                        @endif
-                                        <div>
-                                            <div class="produk-name">{{ $p->nama_produk }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="kategori" title="{{ $p->kategori->nama_kategori ?? '-' }}">{{ $p->kategori->nama_kategori ?? '-' }}</td>
-                                <td class="harga">Rp {{ number_format($p->harga, 0, ',', '.') }}</td>
-                                <td class="center {{ $p->stok <= 5 ? 'stok-warn' : '' }}">{{ $p->stok }}</td>
-                                <td class="center">
-                                    <span class="badge badge-{{ $p->status }}">{{ $labelStatus }}</span>
-                                </td>
-                                <td class="center">
-                                    <div class="actions">
-                                        <a href="#" class="btn-action btn-action-view"
-   title="Detail produk"
-   onclick="showDetail(event, {
-       nama:   {{ json_encode($p->nama_produk) }},
-       kat:    {{ json_encode($p->kategori->nama_kategori ?? '-') }},
-       harga:  {{ json_encode('Rp ' . number_format($p->harga, 0, ',', '.')) }},
-       stok:   {{ $p->stok }},
-       berat:  {{ $p->berat_gram }},
-       status: {{ json_encode($p->status) }},
-       deskripsi: {{ json_encode($p->deskripsi_produk) }},
-       depan:  {{ json_encode($p->gambar_produk ? asset('assets/image/produk/' . $p->gambar_produk) : null) }},
-       kanan:  {{ json_encode($p->gambar_kanan  ? asset('assets/image/produk/' . $p->gambar_kanan)  : null) }},
-       kiri:   {{ json_encode($p->gambar_kiri   ? asset('assets/image/produk/' . $p->gambar_kiri)   : null) }},
-       dalam:  {{ json_encode($p->gambar_dalam  ? asset('assets/image/produk/' . $p->gambar_dalam)  : null) }}
-   })">
-                                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                                <circle cx="12" cy="12" r="3"></circle>
-                                            </svg>
-                                        </a>
-<a href="{{ route('produk.edit', $p->produk_id) }}"
-                                           class="btn-action btn-action-edit"
-                                           title="Edit produk">
-                                            <img src="{{ asset('images/edit.svg') }}" alt="Edit">
-                                        </a>
-                                        <form method="POST"
-                                              action="{{ route('produk.destroy', $p->produk_id) }}"
-                                              onsubmit="return confirm('Yakin ingin menghapus produk ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                    class="btn-action btn-action-del"
-                                                    title="Hapus produk">
-                                                <img src="{{ asset('images/trash.svg') }}" alt="Hapus">
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-
-                {{-- Footer / Pagination info --}}
-                <div class="table-footer">
-                    <span id="infoText">Menampilkan 1&ndash;{{ $produk->count() }} dari {{ $produk->count() }} produk</span>
-                    <div class="pagination" id="pagination"></div>
+            @if(session('success'))
+                <div class="alert-success">
+                    {{ session('success') }}
                 </div>
             @endif
-        {{-- Modal Detail Produk --}}
-        <div class="modal-overlay" id="detailModal" onclick="handleModalClick(event)">
-            <div class="modal-card">
-                <div class="modal-header">
-                    <h3 id="modalTitle">Detail Produk</h3>
-                    <button type="button" class="modal-close" onclick="closeModal()">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
+
+            <!-- Toolbar (Filter, Search, Tambah) -->
+            <form method="GET" action="{{ route('produk.index') }}" class="toolbar">
+                <!-- Search Input -->
+                <div class="search-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" name="search" class="search-input" value="{{ request('search') }}" placeholder="Cari produk..." onchange="this.form.submit()">
                 </div>
-                <div class="modal-body">
-                    <p class="modal-section-title">Foto Produk dari Berbagai Sudut</p>
-                    <div class="modal-photos">
-                        <div class="modal-photo-item">
-                            <div class="modal-photo-thumb" id="thumbDepanWrap">
-                                <img id="thumbDepan" src="" alt="Foto Depan">
-                            </div>
-                            <span class="modal-photo-label">Depan (Utama)</span>
+
+                <!-- Dropdown Kategori -->
+                <div class="select-filter-wrap">
+                    <select name="kategori" class="select-filter" onchange="this.form.submit()">
+                        <option value="">Semua Kategori</option>
+                        @foreach($kategoriList as $kat)
+                            <option value="{{ $kat->kategori_id }}" {{ request('kategori') == $kat->kategori_id ? 'selected' : '' }}>
+                                {{ $kat->nama_kategori }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+
+                <!-- Dropdown Status -->
+                <div class="select-filter-wrap">
+                    <select name="status" class="select-filter" onchange="this.form.submit()">
+                        <option value="">Semua Status</option>
+                        <option value="aktif" {{ request('status') === 'aktif' ? 'selected' : '' }}>Aktif</option>
+                        <option value="sold_out" {{ request('status') === 'sold_out' ? 'selected' : '' }}>Sold Out</option>
+                        <option value="arsip" {{ request('status') === 'arsip' ? 'selected' : '' }}>Arsip</option>
+                    </select>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+
+                <div class="spacer"></div>
+
+                <!-- Tombol Tambah Produk -->
+                <a href="{{ route('produk.create') }}" class="btn-add">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span>Tambah Produk</span>
+                </a>
+            </form>
+
+            <!-- Table Card -->
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table class="produk-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">No</th>
+                                <th style="width: 28%;">Produk</th>
+                                <th style="width: 17%;">Kategori</th>
+                                <th style="width: 17%;">Harga</th>
+                                <th class="center" style="width: 11%;">Total Motif</th>
+                                <th class="center" style="width: 11%;">Status</th>
+                                <th class="center" style="width: 11%;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($produk as $index => $item)
+                                @php
+                                    $firstMotif = $item->motif->first();
+                                    $foto = $firstMotif ? $firstMotif->gambar_depan : null;
+                                    $fotoPath = $foto ? public_path('assets/image/produk/' . $foto) : null;
+                                    $fotoUrl = ($fotoPath && file_exists($fotoPath)) ? asset('assets/image/produk/' . $foto) : null;
+                                    $statusClass = $item->status ?? 'aktif';
+                                    $statusLabel = $item->status === 'sold_out' ? 'Sold Out' : ucfirst($item->status);
+                                @endphp
+                                <tr>
+                                    <td>{{ $produk->firstItem() + $index }}</td>
+                                    <td>
+                                        <div class="cell-product">
+                                            <div class="thumb-box">
+                                                @if($fotoUrl)
+                                                    <img src="{{ $fotoUrl }}" alt="{{ $item->nama_produk }}">
+                                                @else
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                                                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                                                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                                                    </svg>
+                                                @endif
+                                            </div>
+                                            <span class="product-name" title="{{ $item->nama_produk }}">{{ $item->nama_produk }}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ $item->kategori->nama_kategori ?? '-' }}</td>
+                                    <td style="font-weight: 600;">Rp {{ number_format($item->harga, 0, ',', '.') }}</td>
+                                    <td style="text-align: center;">{{ $item->motif_count ?? $item->motif->count() }}</td>
+                                    <td style="text-align: center;">
+                                        <span class="badge-status {{ $statusClass }}">{{ $statusLabel }}</span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div class="action-group">
+                                            <!-- View / Eye Icon -->
+                                            <a href="{{ route('produk.edit', $item->produk_id) }}" class="btn-action view" title="Lihat Detail Produk">
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                            </a>
+                                            <!-- Edit Icon -->
+                                            <a href="{{ route('produk.edit', $item->produk_id) }}" class="btn-action edit" title="Edit Produk">
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                </svg>
+                                            </a>
+                                            <!-- Delete Icon -->
+                                            <form action="{{ route('produk.destroy', $item->produk_id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?');" style="margin: 0;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn-action delete" title="Hapus Produk">
+                                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 50px 16px; color: #8A8A8A;">
+                                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;">
+                                            <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                                <path d="M16 10a4 4 0 0 1-8 0"></path>
+                                            </svg>
+                                            <span style="font-size: 14px; font-weight: 500; color: #555555;">Belum ada produk yang tersedia</span>
+                                            <span style="font-size: 12px; color: #9A9A9A;">Silakan tambahkan produk baru Anda dengan mengklik tombol "+ Tambah Produk" di atas.</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Footer Pagination -->
+                @if($produk->total() > 0)
+                    <div class="table-footer">
+                        <div>
+                            Menampilkan {{ $produk->firstItem() ?? 0 }}-{{ $produk->lastItem() ?? 0 }} dari {{ $produk->total() ?? 0 }} produk
                         </div>
-                        <div class="modal-photo-item">
-                            <div class="modal-photo-thumb" id="thumbKananWrap">
-                                <img id="thumbKanan" src="" alt="Samping Kanan">
-                            </div>
-                            <span class="modal-photo-label">Samping Kanan</span>
-                        </div>
-                        <div class="modal-photo-item">
-                            <div class="modal-photo-thumb" id="thumbKiriWrap">
-                                <img id="thumbKiri" src="" alt="Samping Kiri">
-                            </div>
-                            <span class="modal-photo-label">Samping Kiri</span>
-                        </div>
-                        <div class="modal-photo-item">
-                            <div class="modal-photo-thumb" id="thumbDalamWrap">
-                                <img id="thumbDalam" src="" alt="Foto Dalam">
-                            </div>
-                            <span class="modal-photo-label">Dalam</span>
+                        <div class="pagination-container">
+                            {{-- Previous Page Link --}}
+                            @if ($produk->onFirstPage())
+                                <span class="page-link-btn disabled">&lt;</span>
+                            @else
+                                <a href="{{ $produk->previousPageUrl() }}" class="page-link-btn">&lt;</a>
+                            @endif
+
+                            {{-- Pagination Elements --}}
+                            @foreach ($produk->getUrlRange(1, $produk->lastPage()) as $page => $url)
+                                @if ($page == $produk->currentPage())
+                                    <span class="page-link-btn active">{{ $page }}</span>
+                                @else
+                                    <a href="{{ $url }}" class="page-link-btn">{{ $page }}</a>
+                                @endif
+                            @endforeach
+
+                            {{-- Next Page Link --}}
+                            @if ($produk->hasMorePages())
+                                <a href="{{ $produk->nextPageUrl() }}" class="page-link-btn">&gt;</a>
+                            @else
+                                <span class="page-link-btn disabled">&gt;</span>
+                            @endif
                         </div>
                     </div>
-
-                    <p class="modal-section-title">Informasi Lengkap</p>
-                    <div class="modal-info-grid">
-                        <div class="info-row">
-                            <span class="info-label">Kategori</span>
-                            <span class="info-value" id="modalKat">-</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Status</span>
-                            <span class="info-value" id="modalStatus">-</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Harga</span>
-                            <span class="info-value" id="modalHarga" style="color: var(--gold);">-</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Stok</span>
-                            <span class="info-value" id="modalStok">-</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Berat</span>
-                            <span class="info-value" id="modalBerat">-</span>
-                        </div>
-                    </div>
-
-                    <p class="modal-section-title">Deskripsi Produk</p>
-                    <div class="modal-desc-box" id="modalDesc">-</div>
-                </div>
+                @endif
             </div>
-        </div>
+        </main>
+    </div>
 
-    </main>
-
+    <!-- Scripts -->
     <script>
-        const PER_PAGE = 10;
-        let currentPage = 1;
+        const userBtn = document.getElementById('userPillBtn');
+        const userDropdown = document.getElementById('userDropdown');
+        const userChevron = document.getElementById('userPillChevron');
 
-        // Semua baris di tabel
-        const allRows = () => [...document.querySelectorAll('#tableBody tr')];
-        // Baris yang lolos filter (data-filtered != 'false')
-        const filteredRows = () => allRows().filter(r => r.dataset.filtered !== 'false');
-
-        function filterTable() {
-            const search   = document.getElementById('searchInput').value.toLowerCase();
-            const kategori = document.getElementById('filterKategori').value;
-            const status   = document.getElementById('filterStatus').value;
-
-            allRows().forEach(row => {
-                const nama = row.dataset.nama     || '';
-                const kat  = row.dataset.kategori || '';
-                const stat = row.dataset.status   || '';
-
-                const match =
-                    (!search   || nama.includes(search)) &&
-                    (!kategori || kat === kategori)       &&
-                    (!status   || stat === status);
-
-                row.dataset.filtered = match ? 'true' : 'false';
-            });
-
-            currentPage = 1;
-            showPage(1);
-        }
-
-        function showPage(page) {
-            currentPage = page;
-            const visible = filteredRows();
-            const total   = visible.length;
-            const start   = (page - 1) * PER_PAGE;
-            const end     = start + PER_PAGE;
-
-            // Sembunyikan semua dulu
-            allRows().forEach(row => row.style.display = 'none');
-
-            // Tampilkan hanya baris halaman ini yang lolos filter
-            visible.forEach((row, i) => {
-                row.style.display = (i >= start && i < end) ? '' : 'none';
-            });
-
-            const from = total ? start + 1 : 0;
-            const to   = Math.min(end, total);
-            document.getElementById('infoText').innerHTML =
-                `Menampilkan ${from}&ndash;${to} dari ${total} produk`;
-
-            renderPagination(total);
-        }
-
-        function renderPagination(total) {
-            const pages = Math.ceil(total / PER_PAGE);
-            const pg    = document.getElementById('pagination');
-            if (!pg) return;
-
-            let html = '';
-            html += `<a class="page-btn ${currentPage === 1 ? 'disabled' : ''}" onclick="if(${currentPage}>1) showPage(${currentPage - 1})">&#8249;</a>`;
-
-            for (let i = 1; i <= pages; i++) {
-                html += `<a class="page-btn ${i === currentPage ? 'active' : ''}" onclick="showPage(${i})">${i}</a>`;
-            }
-
-            html += `<a class="page-btn ${currentPage >= pages || pages === 0 ? 'disabled' : ''}" onclick="if(${currentPage}<${pages}) showPage(${currentPage + 1})">&#8250;</a>`;
-
-            pg.innerHTML = html;
-        }
-
-        // Init — tandai semua baris sebagai lolos filter
-        allRows().forEach(r => r.dataset.filtered = 'true');
-        showPage(1);
-
-
-
-
-        // --- Detail Modal Functions ---
-        function setThumb(wrapId, imgId, src) {
-            const wrap = document.getElementById(wrapId);
-            const img  = document.getElementById(imgId);
-            if (src) {
-                img.src = src;
-                img.style.display = 'block';
-                const emptyMsg = wrap.querySelector('.empty-thumb');
-                if (emptyMsg) emptyMsg.remove();
-            } else {
-                img.style.display = 'none';
-                if (!wrap.querySelector('.empty-thumb')) {
-                    const span = document.createElement('span');
-                    span.className = 'empty-thumb';
-                    span.textContent = 'Tidak ada foto';
-                    wrap.appendChild(span);
+        if (userBtn && userDropdown) {
+            userBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isShown = userDropdown.classList.contains('show');
+                userDropdown.classList.toggle('show', !isShown);
+                if (userChevron) {
+                    userChevron.style.transform = isShown ? 'rotate(0deg)' : 'rotate(180deg)';
                 }
-            }
+            });
+
+            document.addEventListener('click', function() {
+                userDropdown.classList.remove('show');
+                if (userChevron) userChevron.style.transform = 'rotate(0deg)';
+            });
         }
-
-        function showDetail(event, data) {
-            if (event) event.preventDefault();
-
-            document.getElementById('modalTitle').textContent  = data.nama;
-            document.getElementById('modalKat').textContent    = data.kat || '-';
-            document.getElementById('modalStatus').innerHTML   = `<span class="badge badge-${data.status}">${data.statusLbl || data.status}</span>`;
-            document.getElementById('modalHarga').textContent  = data.harga;
-            document.getElementById('modalStok').textContent   = data.stok + ' pcs';
-            document.getElementById('modalBerat').textContent  = data.berat ? data.berat + ' gram' : '-';
-            document.getElementById('modalDesc').textContent   = data.deskripsi || 'Tidak ada deskripsi.';
-
-            setThumb('thumbDepanWrap', 'thumbDepan', data.depan);
-            setThumb('thumbKananWrap', 'thumbKanan', data.kanan);
-            setThumb('thumbKiriWrap',  'thumbKiri',  data.kiri);
-            setThumb('thumbDalamWrap', 'thumbDalam', data.dalam);
-
-            document.getElementById('detailModal').classList.add('open');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal() {
-            document.getElementById('detailModal').classList.remove('open');
-            document.body.style.overflow = '';
-        }
-
-        function handleModalClick(e) {
-            if (e.target.id === 'detailModal') {
-                closeModal();
-            }
-        }
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeModal();
-        });
     </script>
-
 </body>
 </html>
+

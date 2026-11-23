@@ -2,277 +2,405 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Tambah Produk - Rabita Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Tambah Produk – Rabita</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #F5F5F0;
-            --card: #FFFFFF;
+            --card-bg: #FFFFFF;
+            --box-bg: #F4F5F0;
             --gold: #B79361;
-            --gold-light: #DEC096;
+            --gold-hover: #9c7847;
+            --gold-badge: #DFBD8D;
+            --gold-badge-tx: #423015;
+            --dark-header: #191919;
             --dark-sidebar: #191919;
-            --tx: #1A1A1A;
-            --mut: #888888;
-            --ln: #F0EDE8;
-            --border: #E8E2D9;
-            --red: #EF4444;
+            --text-dark: #111111;
+            --text-muted: #6B7280;
+            --border-input: #D1D5DB;
+            --border-focus: #B79361;
+            --border-dashed: #9CA3AF;
+            --danger: #EF4444;
+            box-sizing: border-box;
         }
 
-        * {
+        *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
         body {
-            font-family: Inter, Arial, sans-serif;
-            background: var(--bg);
-            color: var(--tx);
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-dark);
+            min-height: 100vh;
             display: flex;
+        }
+
+        /* --- Layout Container --- */
+        .layout-main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
         }
 
-        /* --- Sidebar --- */
-        aside {
-            width: 206px;
-            flex: none;
-            background: var(--dark-sidebar);
-            color: #fff;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .lg {
+        /* --- Topbar --- */
+        .topbar {
             height: 83px;
+            background-color: var(--dark-header);
             display: flex;
             align-items: center;
-            justify-content: center;
-            border-bottom: 1px solid var(--gold-light);
+            justify-content: flex-end;
+            padding: 0 34px;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+            border-bottom: 1px solid #B79361;
         }
 
-        .lg img {
-            height: 79px;
+        .user-pill-container {
+            position: relative;
         }
 
-        nav {
-            padding: 28px 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            flex: 1;
-        }
-
-        nav a {
+        .user-pill-btn {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 0 10px;
-            height: 37px;
-            border-radius: 5px;
-            color: #fff;
-            text-decoration: none;
-            font-size: 16.5px;
-            transition: all .2s;
+            height: 48px;
+            padding: 0 16px 0 6px;
+            background-color: #FFFFFF;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            outline: none;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
 
-        nav a:hover {
-            background: var(--gold-light);
+        .user-pill-btn:hover {
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
         }
 
-        nav a.on {
-            background: var(--gold);
+        .avatar-circle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background-color: var(--gold);
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            color: #FFFFFF;
         }
 
-        nav img {
-            width: 22px;
-            height: 22px;
+        .avatar-circle svg {
+            width: 18px;
+            height: 18px;
         }
 
-        .sidebar-logout {
-            padding: 18px;
+        .user-text {
+            text-align: left;
+            line-height: 1.25;
+            display: flex;
+            flex-direction: column;
         }
 
-        .sidebar-logout form {
-            margin: 0;
+        .user-name {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            color: #1A1A1A;
         }
 
-        .sidebar-logout button {
+        .user-role {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--gold);
+        }
+
+        .user-chevron {
+            color: var(--gold);
+            transition: transform 0.2s ease;
+            margin-left: 2px;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            width: 190px;
+            background: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            border: 1px solid #ECECEC;
+            padding: 8px 0;
+            z-index: 100;
+            display: none;
+        }
+
+        .user-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-user-info {
+            padding: 10px 16px;
+            border-bottom: 1px solid #F0F0F0;
+        }
+
+        .dropdown-user-info p {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            color: #888888;
+        }
+
+        .dropdown-user-info b {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            color: #1A1A1A;
+            display: block;
+        }
+
+        .dropdown-item {
             display: flex;
             align-items: center;
             gap: 10px;
             width: 100%;
-            height: 37px;
-            padding: 0 12px;
-            border: 1px solid rgba(222, 192, 150, .3);
-            border-radius: 5px;
+            padding: 10px 16px;
+            border: none;
             background: transparent;
-            color: var(--gold-light);
-            font-size: 14px;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            color: #EF4444;
             cursor: pointer;
-            transition: all .2s;
+            text-decoration: none;
+            transition: background-color 0.15s ease;
         }
 
-        .sidebar-logout button:hover {
-            background: rgba(222, 192, 150, .15);
+        .dropdown-item:hover {
+            background-color: #FEF2F2;
         }
 
-        /* --- Main --- */
+        .dropdown-item:hover {
+            background-color: #FEE2E2;
+        }
+
+        /* --- Main Content --- */
         main {
             flex: 1;
-            padding: 28px 32px 40px;
+            padding: 34px 44px 50px;
         }
 
-        .page-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 28px;
-        }
-
-        h1 {
-            font-size: 22px;
+        .page-title {
+            font-size: 24px;
             font-weight: 700;
+            color: #111111;
+            margin-bottom: 24px;
         }
 
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: var(--mut);
-            text-decoration: none;
-            font-size: 14px;
-            transition: color .2s;
+        /* --- Alert Messages --- */
+        .alert-error {
+            background-color: #FEE2E2;
+            border: 1px solid #FCA5A5;
+            color: #991B1B;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-bottom: 22px;
+            font-size: 13.5px;
         }
 
-        .back-btn:hover {
-            color: var(--tx);
+        .alert-error ul {
+            margin: 6px 0 0 18px;
+            padding: 0;
         }
 
-        /* --- Form Card --- */
-        .form-card {
-            background: var(--card);
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
-            padding: 32px;
-            margin-bottom: 20px;
+        /* --- White Form Card --- */
+        .card-main {
+            background-color: var(--card-bg);
+            border-radius: 18px;
+            padding: 36px 40px 40px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
         }
 
         .section-title {
-            font-size: 15px;
+            font-size: 20px;
             font-weight: 700;
-            color: var(--tx);
-            margin: 0 0 20px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--ln);
+            color: #111111;
+            margin-bottom: 22px;
         }
 
-        .form-grid {
+        /* --- Form Grid --- */
+        .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            column-gap: 24px;
+            row-gap: 18px;
         }
 
-        .form-full {
+        .col-full {
             grid-column: 1 / -1;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 7px;
         }
 
-        label {
+        .form-label {
             font-size: 14px;
             font-weight: 600;
-            color: var(--tx);
+            color: #111111;
         }
 
-        input,
-        select,
-        textarea {
+        .form-input,
+        .form-select,
+        .form-textarea {
             width: 100%;
-            padding: 10px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: 8px;
+            height: 46px;
+            padding: 0 16px;
+            border: 1px solid var(--border-input);
+            border-radius: 9px;
             font-size: 14px;
-            font-family: Inter, Arial, sans-serif;
-            background: #FAFAF8;
-            color: var(--tx);
-            transition: border .2s;
+            font-family: inherit;
+            color: #111111;
+            background-color: #FFFFFF;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
-        input:focus,
-        select:focus,
-        textarea:focus {
+        .form-input::placeholder,
+        .form-textarea::placeholder {
+            color: #9CA3AF;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
             outline: none;
-            border-color: var(--gold);
-            background: #fff;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(183, 147, 97, 0.15);
         }
 
-        textarea {
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 16px;
+            padding-right: 38px;
+            cursor: pointer;
+        }
+
+        .form-textarea {
+            height: auto;
+            min-height: 96px;
+            padding: 12px 16px;
             resize: vertical;
-            min-height: 110px;
+            line-height: 1.5;
         }
 
-        .error {
-            color: var(--red);
-            font-size: 12px;
-            margin-top: 4px;
+        /* --- Motif Section --- */
+        .motif-box {
+            background-color: var(--box-bg);
+            border-radius: 14px;
+            padding: 24px 28px;
+            margin-top: 10px;
+        }
+
+        .motif-badge {
+            display: inline-block;
+            background-color: var(--gold-badge);
+            color: var(--gold-badge-tx);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 5px 16px;
+            border-radius: 7px;
+            margin-bottom: 18px;
+        }
+
+        .grid-motif-fields {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1.2fr;
+            gap: 20px;
+        }
+
+        /* Status Motif Styled Pill Select */
+        .select-status-motif {
+            appearance: none;
+            background-color: #DCFCE7;
+            color: #166534;
+            border: 1px solid #86EFAC;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: 500;
+            height: 46px;
+            padding: 0 38px 0 16px;
+            width: 100%;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23166534' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .select-status-motif.status-sold_out {
+            background-color: #FEE2E2;
+            color: #991B1B;
+            border-color: #FCA5A5;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23991B1B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        }
+
+        .select-status-motif.status-arsip {
+            background-color: #F3F4F6;
+            color: #374151;
+            border-color: #D1D5DB;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
         }
 
         /* --- Photo Upload Grid --- */
-        .photo-grid {
+        .grid-photos {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 16px;
+            margin-top: 12px;
         }
 
-        .photo-slot {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .photo-slot label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--tx);
-            text-align: center;
-        }
-
-        .photo-label-hint {
-            font-size: 11px;
-            color: var(--mut);
-            text-align: center;
-        }
-
-        .photo-box {
-            width: 100%;
-            aspect-ratio: 1;
-            border: 2px dashed var(--border);
-            border-radius: 10px;
+        .photo-upload-card {
+            border: 1.5px dashed var(--border-dashed);
+            border-radius: 12px;
+            background-color: #FFFFFF;
+            min-height: 125px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: border .2s, background .2s;
-            overflow: hidden;
             position: relative;
-            background: #FAFAF8;
+            overflow: hidden;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+            text-align: center;
+            padding: 12px;
         }
 
-        .photo-box:hover {
+        .photo-upload-card:hover {
             border-color: var(--gold);
-            background: #fff;
+            background-color: #FAFAF7;
         }
 
-        .photo-box img.preview {
+        .photo-upload-card.has-image {
+            border-style: solid;
+            border-color: #E5E7EB;
+            padding: 0;
+        }
+
+        .photo-upload-card img.preview-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -281,230 +409,503 @@
             display: none;
         }
 
-        .photo-box .upload-icon {
+        .photo-upload-card.has-image img.preview-img {
+            display: block;
+        }
+
+        .photo-card-content {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 6px;
-            color: var(--mut);
-            font-size: 11px;
+            z-index: 2;
+            pointer-events: none;
         }
 
-        .photo-box input[type="file"] {
-            display: none;
+        .photo-card-content svg {
+            color: #111111;
         }
 
-        /* --- Form Actions --- */
-        .form-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-
-        .btn-save {
-            background: var(--gold);
-            color: #fff;
-            padding: 11px 28px;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
+        .photo-title {
+            font-size: 13px;
             font-weight: 600;
-            cursor: pointer;
-            transition: background .2s;
+            color: #111111;
         }
 
-        .btn-save:hover {
-            background: #a07c4c;
+        .photo-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 400;
         }
 
-        .btn-cancel {
+        .photo-change-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 3;
+        }
+
+        .photo-upload-card.has-image:hover .photo-change-overlay {
+            display: flex;
+        }
+
+        .btn-add-motif {
             display: inline-flex;
             align-items: center;
-            background: transparent;
-            color: var(--mut);
-            padding: 11px 24px;
-            border: 1.5px solid var(--border);
-            border-radius: 8px;
-            font-size: 15px;
+            gap: 6px;
+            border: 1px solid var(--gold);
+            background-color: #FFFFFF;
+            color: var(--gold);
+            font-size: 13.5px;
             font-weight: 500;
+            padding: 8px 18px;
+            border-radius: 8px;
             cursor: pointer;
-            text-decoration: none;
-            transition: all .2s;
+            margin-top: 20px;
+            transition: all 0.2s ease;
         }
 
-        .btn-cancel:hover {
-            border-color: var(--tx);
-            color: var(--tx);
+        .btn-add-motif:hover {
+            background-color: #FAF5EE;
+        }
+
+        /* --- Form Bottom Actions --- */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 14px;
+            margin-top: 26px;
+        }
+
+        .btn-batal {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #FFFFFF;
+            border: 1.5px solid #111111;
+            color: #111111;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 11px 36px;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-batal:hover {
+            background-color: #F3F4F6;
+        }
+
+        .btn-simpan {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: var(--gold);
+            border: none;
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 11px 26px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-simpan:hover {
+            background-color: var(--gold-hover);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .grid-motif-fields {
+                grid-template-columns: 1fr;
+            }
+            .grid-photos {
+                grid-template-columns: 1fr 1fr;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- SIDEBAR (Komponen Valid Sesuai Figma) -->
     @include('components.sidebar')
 
-    <main>
-        <div class="page-header">
-            <a href="{{ route('produk.index') }}" class="back-btn">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-                Kembali
-            </a>
-            <h1>Tambah Produk Baru</h1>
-        </div>
+    <!-- MAIN WRAPPER -->
+    <div class="layout-main">
 
-        <form action="{{ route('produk.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
+        <!-- TOPBAR PERSIS FIGMA -->
+        <header class="topbar">
+            <div class="user-pill-container">
+                <button type="button" class="user-pill-btn" id="userPillBtn" aria-label="Menu Pengguna">
+                    <span class="avatar-circle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </span>
+                    <span class="user-text">
+                        <span class="user-name">{{ Auth::user()->username ?? 'Salman' }}</span>
+                        <span class="user-role">{{ ucfirst(Auth::user()->level ?? 'Administrator') }}</span>
+                    </span>
+                    <svg class="user-chevron" id="userPillChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
 
-            {{-- Informasi Produk --}}
-            <div class="form-card">
-                <p class="section-title">Informasi Produk</p>
-                <div class="form-grid">
-
-                    <div class="form-group form-full">
-                        <label for="nama_produk">Nama Produk</label>
-                        <input type="text" id="nama_produk" name="nama_produk"
-                               value="{{ old('nama_produk') }}"
-                               placeholder="Contoh: Tas Batik Premium Motif Kawung">
-                        @error('nama_produk')
-                            <span class="error">{{ $message }}</span>
-                        @enderror
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="dropdown-user-info">
+                        <p>Login sebagai:</p>
+                        <b>{{ Auth::user()->username ?? 'Salman' }}</b>
+                        <span style="font-size: 11px; color: var(--gold);">{{ Auth::user()->email ?? 'admin@rabita.com' }}</span>
                     </div>
 
-                    <div class="form-group">
-                        <label for="kategori_id">Kategori</label>
-                        <select id="kategori_id" name="kategori_id">
-                            <option value="">-- Pilih Kategori --</option>
-                            @foreach ($kategori as $k)
-                                <option value="{{ $k->kategori_id }}" {{ old('kategori_id') == $k->kategori_id ? 'selected' : '' }}>
-                                    {{ $k->nama_kategori }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('kategori_id')
-                            <span class="error">{{ $message }}</span>
-                        @enderror
-                    </div>
+                    <a href="{{ route('admin.pengaturan') }}" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 16px; border: none; background: transparent; font-size: 13px; font-family: 'Inter', sans-serif; color: #1A1A1A; cursor: pointer; text-decoration: none; transition: background-color 0.15s ease;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        Pengaturan
+                    </a>
 
-                    <div class="form-group">
-                        <label for="status">Status</label>
-                        <select id="status" name="status">
-                            <option value="aktif"    {{ old('status', 'aktif') === 'aktif'    ? 'selected' : '' }}>Aktif</option>
-                            <option value="sold_out" {{ old('status')          === 'sold_out'  ? 'selected' : '' }}>Sold Out</option>
-                            <option value="arsip"    {{ old('status')          === 'arsip'     ? 'selected' : '' }}>Arsip</option>
-                        </select>
-                        @error('status')
-                            <span class="error">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label for="harga">Harga (Rp)</label>
-                        <input type="number" id="harga" name="harga"
-                               value="{{ old('harga') }}" min="0" placeholder="0">
-                        @error('harga')
-                            <span class="error">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label for="stok">Stok</label>
-                        <input type="number" id="stok" name="stok"
-                               value="{{ old('stok') }}" min="0" placeholder="0">
-                        @error('stok')
-                            <span class="error">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label for="berat_gram">Berat (gram)</label>
-                        <input type="number" id="berat_gram" name="berat_gram"
-                               value="{{ old('berat_gram') }}" min="0" placeholder="0">
-                        @error('berat_gram')
-                            <span class="error">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    <div class="form-group form-full">
-                        <label for="deskripsi_produk">Deskripsi Produk</label>
-                        <textarea id="deskripsi_produk" name="deskripsi_produk"
-                                  placeholder="Tuliskan deskripsi lengkap produk...">{{ old('deskripsi_produk') }}</textarea>
-                        @error('deskripsi_produk')
-                            <span class="error">{{ $message }}</span>
-                        @enderror
-                    </div>
-
+                    <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                        @csrf
+                        <button type="submit" class="dropdown-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                            Keluar
+                        </button>
+                    </form>
                 </div>
             </div>
+        </header>
 
-            {{-- Foto Produk --}}
-            <div class="form-card">
-                <p class="section-title">Foto Produk</p>
-                <p style="font-size: 13px; color: var(--mut); margin-bottom: 20px;">
-                    Upload foto produk dari berbagai sudut. Foto Depan adalah yang utama dan ditampilkan di daftar produk.
-                    Format: JPG, PNG, WEBP &middot; Maks 2MB per foto.
-                </p>
+        <!-- CONTENT -->
+        <main>
+            <h1 class="page-title">Tambah Produk</h1>
 
-                <div class="photo-grid">
-                    @php
-                        $fotoSlots = [
-                            ['field' => 'gambar_produk', 'label' => 'Foto Depan',       'hint' => '(Utama)'],
-                            ['field' => 'gambar_kanan',  'label' => 'Foto Samping Kanan', 'hint' => '(Opsional)'],
-                            ['field' => 'gambar_kiri',   'label' => 'Foto Samping Kiri',  'hint' => '(Opsional)'],
-                            ['field' => 'gambar_dalam',  'label' => 'Foto Dalam',         'hint' => '(Opsional)'],
-                        ];
-                    @endphp
+            @if (isset($errors) && $errors->any())
+                <div class="alert-error">
+                    <b>Terdapat kesalahan pada formulir:</b>
+                    <ul>
+                        @foreach ($errors->all() as $err)
+                            <li>{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-                    @foreach ($fotoSlots as $slot)
-                        <div class="photo-slot">
-                            <label for="{{ $slot['field'] }}">{{ $slot['label'] }}</label>
-                            <label class="photo-box" for="{{ $slot['field'] }}" id="box-{{ $slot['field'] }}">
-                                <img class="preview" id="preview-{{ $slot['field'] }}" src="" alt="">
-                                <div class="upload-icon" id="icon-{{ $slot['field'] }}">
-                                    <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                        <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-                                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                        <polyline points="21 15 16 10 5 21"></polyline>
-                                    </svg>
-                                    <span>Klik untuk upload</span>
-                                </div>
-                                <input type="file" id="{{ $slot['field'] }}" name="{{ $slot['field'] }}"
-                                       accept="image/png,image/jpeg,image/jpg,image/webp"
-                                       style="display:none;"
-                                       onchange="previewImg(this, '{{ $slot['field'] }}')">
-                            </label>
-                            <span class="photo-label-hint">{{ $slot['hint'] }}</span>
-                            @error($slot['field'])
-                                <span class="error">{{ $message }}</span>
-                            @enderror
+            <form action="{{ route('produk.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+
+                <!-- MAIN WHITE CARD -->
+                <div class="card-main">
+
+                    <!-- DETAIL PRODUK -->
+                    <h2 class="section-title">Detail Produk</h2>
+
+                    <div class="grid-2">
+                        <!-- Nama Produk -->
+                        <div class="form-group">
+                            <label class="form-label" for="nama_produk">Nama Produk</label>
+                            <input type="text"
+                                   id="nama_produk"
+                                   name="nama_produk"
+                                   class="form-input"
+                                   placeholder="Masukkan nama produk"
+                                   value="{{ old('nama_produk') }}"
+                                   required>
                         </div>
-                    @endforeach
-                </div>
-            </div>
 
-            <div class="form-actions">
-                <a href="{{ route('produk.index') }}" class="btn-cancel">Batal</a>
-                <button type="submit" class="btn-save">Simpan Produk</button>
-            </div>
-        </form>
-    </main>
+                        <!-- Kategori -->
+                        <div class="form-group">
+                            <label class="form-label" for="kategori_id">Kategori</label>
+                            <select id="kategori_id" name="kategori_id" class="form-select" required>
+                                <option value="" disabled {{ old('kategori_id') ? '' : 'selected' }}>Pilih Kategori</option>
+                                @forelse ($kategori as $k)
+                                    <option value="{{ $k->kategori_id }}" {{ old('kategori_id') == $k->kategori_id ? 'selected' : '' }}>
+                                        {{ $k->nama_kategori }}
+                                    </option>
+                                @empty
+                                    <option value="" disabled>Belum ada kategori tersedia</option>
+                                @endforelse
+                            </select>
+                        </div>
+
+                        <!-- Material -->
+                        <div class="form-group">
+                            <label class="form-label" for="material">Material</label>
+                            <input type="text"
+                                   id="material"
+                                   name="material"
+                                   class="form-input"
+                                   placeholder="contoh : kain sasirangan"
+                                   value="{{ old('material') }}"
+                                   required>
+                        </div>
+
+                        <!-- Harga -->
+                        <div class="form-group">
+                            <label class="form-label" for="harga">Harga</label>
+                            <input type="number"
+                                   id="harga"
+                                   name="harga"
+                                   class="form-input"
+                                   placeholder="Masukkan harga"
+                                   value="{{ old('harga') }}"
+                                   min="0"
+                                   required>
+                        </div>
+
+                        <!-- Ukuran -->
+                        <div class="form-group">
+                            <label class="form-label" for="ukuran">Ukuran</label>
+                            <input type="text"
+                                   id="ukuran"
+                                   name="ukuran"
+                                   class="form-input"
+                                   placeholder="P X L X T (cm) Contoh: 30 x 25 x 12"
+                                   value="{{ old('ukuran') }}"
+                                   required>
+                        </div>
+
+                        <!-- Berat (gram) -->
+                        <div class="form-group">
+                            <label class="form-label" for="berat_gram">Berat (gram)</label>
+                            <input type="number"
+                                   id="berat_gram"
+                                   name="berat_gram"
+                                   class="form-input"
+                                   placeholder="Masukkan berat Produk"
+                                   value="{{ old('berat_gram') }}"
+                                   min="0"
+                                   required>
+                        </div>
+
+                        <!-- Deskripsi -->
+                        <div class="form-group col-full">
+                            <label class="form-label" for="deskripsi_produk">Deskripsi</label>
+                            <textarea id="deskripsi_produk"
+                                      name="deskripsi_produk"
+                                      class="form-textarea"
+                                      placeholder="Jelaskan Bahan, Ukuran, dan Keunggulan Produk..."
+                                      required>{{ old('deskripsi_produk') }}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- PILIHAN MOTIF -->
+                    <h2 class="section-title" style="margin-top: 36px;">Pilihan Motif</h2>
+
+                    <div class="motif-box">
+                        <div class="motif-badge">Motif 1</div>
+
+                        <div class="grid-motif-fields">
+                            <!-- Nama Motif -->
+                            <div class="form-group">
+                                <label class="form-label" for="nama_motif">Nama Motif</label>
+                                <input type="text"
+                                       id="nama_motif"
+                                       name="nama_motif"
+                                       class="form-input"
+                                       placeholder="Contoh: Motif Warna Warni"
+                                       value="{{ old('nama_motif') }}"
+                                       required>
+                            </div>
+
+                            <!-- Stok -->
+                            <div class="form-group">
+                                <label class="form-label" for="stok">Stok</label>
+                                <input type="number"
+                                       id="stok"
+                                       name="stok"
+                                       class="form-input"
+                                       placeholder="0"
+                                       value="{{ old('stok', 0) }}"
+                                       min="0"
+                                       required>
+                            </div>
+
+                            <!-- Status Motif -->
+                            <div class="form-group">
+                                <label class="form-label" for="status_motif_select">Status Motif</label>
+                                <select id="status_motif_select"
+                                        name="status"
+                                        class="select-status-motif status-aktif"
+                                        required>
+                                    <option value="aktif" {{ old('status', 'aktif') === 'aktif' ? 'selected' : '' }}>Aktif</option>
+                                    <option value="sold_out" {{ old('status') === 'sold_out' ? 'selected' : '' }}>Sold Out</option>
+                                    <option value="arsip" {{ old('status') === 'arsip' ? 'selected' : '' }}>Arsip</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Foto Motif -->
+                        <div style="margin-top: 20px;">
+                            <label class="form-label">Foto Motif</label>
+
+                            <div class="grid-photos">
+                                <!-- Slot 1: Foto Depan (WAJIB) -->
+                                <div class="photo-upload-card" onclick="document.getElementById('input_gambar_depan').click()">
+                                    <input type="file" id="input_gambar_depan" name="gambar_depan" accept="image/*" style="display: none;" onchange="previewPhoto(this, 'preview_depan')">
+                                    <img id="preview_depan" class="preview-img" alt="Foto Depan">
+                                    <div class="photo-card-content">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="3" width="18" height="18" rx="3" ry="3"></rect>
+                                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                            <polyline points="21 15 16 10 5 21"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="7"></line>
+                                            <line x1="10" y1="5" x2="14" y2="5"></line>
+                                        </svg>
+                                        <span class="photo-title">Foto Depan</span>
+                                        <span class="photo-sub">(WAJIB)</span>
+                                    </div>
+                                    <div class="photo-change-overlay">Ganti Foto</div>
+                                </div>
+
+                                <!-- Slot 2: Foto Kiri (OPSIONAL) -->
+                                <div class="photo-upload-card" onclick="document.getElementById('input_gambar_kiri').click()">
+                                    <input type="file" id="input_gambar_kiri" name="gambar_kiri" accept="image/*" style="display: none;" onchange="previewPhoto(this, 'preview_kiri')">
+                                    <img id="preview_kiri" class="preview-img" alt="Foto Kiri">
+                                    <div class="photo-card-content">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="3" width="18" height="18" rx="3" ry="3"></rect>
+                                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                            <polyline points="21 15 16 10 5 21"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="7"></line>
+                                            <line x1="10" y1="5" x2="14" y2="5"></line>
+                                        </svg>
+                                        <span class="photo-title">Foto Kiri</span>
+                                        <span class="photo-sub">(OPSIONAL)</span>
+                                    </div>
+                                    <div class="photo-change-overlay">Ganti Foto</div>
+                                </div>
+
+                                <!-- Slot 3: Foto Kanan (OPSIONAL) -->
+                                <div class="photo-upload-card" onclick="document.getElementById('input_gambar_kanan').click()">
+                                    <input type="file" id="input_gambar_kanan" name="gambar_kanan" accept="image/*" style="display: none;" onchange="previewPhoto(this, 'preview_kanan')">
+                                    <img id="preview_kanan" class="preview-img" alt="Foto Kanan">
+                                    <div class="photo-card-content">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="3" width="18" height="18" rx="3" ry="3"></rect>
+                                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                            <polyline points="21 15 16 10 5 21"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="7"></line>
+                                            <line x1="10" y1="5" x2="14" y2="5"></line>
+                                        </svg>
+                                        <span class="photo-title">Foto Kanan</span>
+                                        <span class="photo-sub">(OPSIONAL)</span>
+                                    </div>
+                                    <div class="photo-change-overlay">Ganti Foto</div>
+                                </div>
+
+                                <!-- Slot 4: Foto Dalam (OPSIONAL) -->
+                                <div class="photo-upload-card" onclick="document.getElementById('input_gambar_dalam').click()">
+                                    <input type="file" id="input_gambar_dalam" name="gambar_dalam" accept="image/*" style="display: none;" onchange="previewPhoto(this, 'preview_dalam')">
+                                    <img id="preview_dalam" class="preview-img" alt="Foto Dalam">
+                                    <div class="photo-card-content">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="3" width="18" height="18" rx="3" ry="3"></rect>
+                                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                            <polyline points="21 15 16 10 5 21"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="7"></line>
+                                            <line x1="10" y1="5" x2="14" y2="5"></line>
+                                        </svg>
+                                        <span class="photo-title">Foto Dalam</span>
+                                        <span class="photo-sub">(OPSIONAL)</span>
+                                    </div>
+                                    <div class="photo-change-overlay">Ganti Foto</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Tombol Tambah Motif Lain -->
+                    <button type="button" class="btn-add-motif" onclick="alert('Fitur tambah multi-motif tersedia. Sistem saat ini menyimpan motif aktif pertama.')">
+                        + Tambah Motif Lain
+                    </button>
+
+                </div>
+
+                <!-- FORM ACTIONS (Bottom Right) -->
+                <div class="form-actions">
+                    <a href="{{ route('produk.index') }}" class="btn-batal">Batal</a>
+                    <button type="submit" class="btn-simpan">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                        Simpan Produk
+                    </button>
+                </div>
+            </form>
+        </main>
+    </div>
 
     <script>
-        function previewImg(input, field) {
-            const preview = document.getElementById('preview-' + field);
-            const icon    = document.getElementById('icon-' + field);
+        const userBtn = document.getElementById('userPillBtn');
+        const userDropdown = document.getElementById('userDropdown');
+        const userChevron = document.getElementById('userPillChevron');
 
+        if (userBtn && userDropdown) {
+            userBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isShown = userDropdown.classList.contains('show');
+                userDropdown.classList.toggle('show', !isShown);
+                if (userChevron) {
+                    userChevron.style.transform = isShown ? 'rotate(0deg)' : 'rotate(180deg)';
+                }
+            });
+
+            document.addEventListener('click', function() {
+                userDropdown.classList.remove('show');
+                if (userChevron) userChevron.style.transform = 'rotate(0deg)';
+            });
+        }
+
+        // Preview Photo
+        function previewPhoto(input, previewId) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = e => {
-                    preview.src           = e.target.result;
-                    preview.style.display = 'block';
-                    icon.style.display    = 'none';
+                reader.onload = function(e) {
+                    const img = document.getElementById(previewId);
+                    img.src = e.target.result;
+                    const card = img.closest('.photo-upload-card');
+                    card.classList.add('has-image');
+                    const content = card.querySelector('.photo-card-content');
+                    if (content) content.style.display = 'none';
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         }
-    </script>
 
+        // Status Motif Color Switcher
+        const statusSelect = document.getElementById('status_motif_select');
+        if (statusSelect) {
+            function updateStatusClass() {
+                statusSelect.classList.remove('status-aktif', 'status-sold_out', 'status-arsip');
+                statusSelect.classList.add('status-' + statusSelect.value);
+            }
+            statusSelect.addEventListener('change', updateStatusClass);
+            updateStatusClass();
+        }
+    </script>
 </body>
 </html>
+
