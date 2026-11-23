@@ -23,6 +23,16 @@ class User extends Authenticatable
         'reset_token_expired',
     ];
 
+    public function getNamaAttribute()
+    {
+        return $this->attributes['username'] ?? null;
+    }
+
+    public function setNamaAttribute($value)
+    {
+        $this->attributes['username'] = $value;
+    }
+
     protected $hidden = [
         'password',
         'reset_token',
