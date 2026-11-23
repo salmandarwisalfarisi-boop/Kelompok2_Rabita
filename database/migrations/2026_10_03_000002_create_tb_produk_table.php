@@ -14,17 +14,14 @@ return new class extends Migration
         Schema::create('tb_produk', function (Blueprint $table) {
             $table->id('produk_id');
             $table->foreignId('kategori_id')->constrained('tb_kategori', 'kategori_id')->cascadeOnDelete();
-            $table->string('nama_produk', 100);
-            $table->string('gambar_produk', 255)->nullable();
-            $table->string('gambar_kanan', 255)->nullable();
-            $table->string('gambar_kiri', 255)->nullable();
-            $table->string('gambar_dalam', 255)->nullable();
+            $table->string('nama_produk', 150);
+            $table->string('slug', 150)->unique();
             $table->text('deskripsi_produk');
             $table->integer('harga');
-            $table->integer('stok');
             $table->integer('berat_gram');
+            $table->string('ukuran', 50);
+            $table->string('material', 100);
             $table->enum('status', ['aktif', 'sold_out', 'arsip'])->default('aktif');
-            $table->timestamps();
         });
     }
 

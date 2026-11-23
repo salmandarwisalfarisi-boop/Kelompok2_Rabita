@@ -14,9 +14,8 @@ return new class extends Migration
         Schema::create('tb_keranjang', function (Blueprint $table) {
             $table->id('keranjang_id');
             $table->foreignId('user_id')->constrained('tb_user', 'user_id')->cascadeOnDelete();
-            $table->foreignId('produk_id')->constrained('tb_produk', 'produk_id')->cascadeOnDelete();
+            $table->foreignId('motif_id')->constrained('tb_motif', 'motif_id')->cascadeOnDelete();
             $table->integer('jumlah');
-            $table->timestamps();
         });
     }
 

@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('tb_pemesanan_detail', function (Blueprint $table) {
             $table->id('detail_id');
             $table->foreignId('pemesanan_id')->constrained('tb_pemesanan', 'pemesanan_id')->cascadeOnDelete();
-            $table->foreignId('produk_id')->constrained('tb_produk', 'produk_id')->cascadeOnDelete();
+            $table->foreignId('motif_id')->constrained('tb_motif', 'motif_id')->cascadeOnDelete();
             $table->integer('jumlah');
             $table->integer('harga_satuan');
-            $table->timestamps();
+            $table->integer('subtotal');
         });
     }
 

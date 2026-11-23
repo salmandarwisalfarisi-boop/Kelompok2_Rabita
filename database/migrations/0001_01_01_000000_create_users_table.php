@@ -13,12 +13,11 @@ return new class extends Migration
     {
         Schema::create('tb_user', function (Blueprint $table) {
             $table->id('user_id');
-            $table->string('username', 50)->unique();
-            $table->string('email', 100)->unique();
-            $table->string('password', 150);
-            $table->string('no_hp', 15);
+            $table->string('username', 100);
+            $table->string('email', 150)->unique();
+            $table->string('password', 255);
+            $table->string('no_hp', 256)->nullable();
             $table->enum('level', ['user', 'admin'])->default('user');
-            $table->string('remmber_token', 100)->nullable();
             $table->string('reset_token', 100)->nullable();
             $table->dateTime('reset_token_expired')->nullable();
             $table->timestamps();
