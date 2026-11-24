@@ -16,7 +16,7 @@ class BlogPublicController extends Controller
             ->latest('blog_id')
             ->paginate(9);
 
-        return view('blog', compact('blogs'));
+        return view('user.blog', compact('blogs'));
     }
 
     /**
@@ -26,13 +26,12 @@ class BlogPublicController extends Controller
     {
         $blog = Blog::where('status_blog', true)->findOrFail($id);
 
-        // Rekomendasi "Baca blog seru lainnya" (maksimal 3 artikel selain artikel ini)
         $blogLainnya = Blog::where('status_blog', true)
             ->where('blog_id', '!=', $id)
             ->latest('blog_id')
             ->take(3)
             ->get();
 
-        return view('blog-detail', compact('blog', 'blogLainnya'));
+        return view('user.blog-detail', compact('blog', 'blogLainnya'));
     }
 }

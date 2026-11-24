@@ -13,15 +13,17 @@ class BerandaController extends Controller
     {
         $kategori = Kategori::all();
 
-        // 4 Produk Terbaru
-        $produkTerbaru = Produk::with('motif')
+        $produkTerbaru = Produk::with(['motif' => function ($query) {
+            $query->orderBy('motif_id')->limit(2);
+        }])
             ->where('status', 'aktif')
             ->latest('produk_id')
             ->take(4)
             ->get();
 
-        // 4 Produk Terlaris (atau urutan teratas berdasarkan motif terbanyak / ID)
-        $produkTerlaris = Produk::with('motif')
+        $produkTerlaris = Produk::with(['motif' => function ($query) {
+            $query->orderBy('motif_id')->limit(2);
+        }])
             ->where('status', 'aktif')
             ->withCount('motif')
             ->orderBy('motif_count', 'desc')
@@ -29,15 +31,13 @@ class BerandaController extends Controller
             ->take(4)
             ->get();
 
-        // Default list produk untuk beranda (terbaru)
         $produk = $produkTerbaru;
 
-        // 3 Blog Terbaru
         $blog = Blog::where('status_blog', true)
             ->latest('blog_id')
             ->take(3)
             ->get();
 
-        return view('beranda', compact('kategori', 'produk', 'produkTerbaru', 'produkTerlaris', 'blog'));
+        return view('user.beranda', compact('kategori', 'produk', 'produkTerbaru', 'produkTerlaris', 'blog'));
     }
 }

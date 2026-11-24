@@ -68,7 +68,7 @@ class KeranjangController extends Controller
             }
         }
 
-        return view('keranjang', compact('items', 'total'));
+        return view('user.keranjang', compact('items', 'total'));
     }
 
     /**

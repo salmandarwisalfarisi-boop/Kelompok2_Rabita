@@ -9,9 +9,13 @@ class DetailController extends Controller
 {
     public function show($id)
     {
-        $produk = Produk::with(['kategori', 'motif'])->findOrFail($id);
+        $produk = Produk::with([
+            'kategori',
+            'motif' => function ($query) {
+                $query->orderBy('motif_id')->limit(5);
+            },
+        ])->findOrFail($id);
 
-        // Section "Check Produk Lainnya" - maksimal 4 produk acak
         $produkLainnya = Produk::with('motif')
             ->where('produk_id', '!=', $id)
             ->where('status', 'aktif')
@@ -19,6 +23,6 @@ class DetailController extends Controller
             ->take(4)
             ->get();
 
-        return view('detail', compact('produk', 'produkLainnya'));
+        return view('user.detail', compact('produk', 'produkLainnya'));
     }
 }

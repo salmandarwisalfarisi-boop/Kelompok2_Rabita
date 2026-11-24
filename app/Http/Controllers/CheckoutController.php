@@ -110,7 +110,6 @@ class CheckoutController extends Controller
             }
         }
 
-        // Jika keranjang kosong saat checkout, redirect ke keranjang
         if (empty($checkoutItems)) {
             return redirect()->route('keranjang')->with('error', 'Silakan pilih minimal satu produk untuk di-checkout.');
         }
@@ -118,11 +117,9 @@ class CheckoutController extends Controller
         // Estimasi berat produk: rata-rata 350 gram per pcs tas/kain sasirangan, minimum 1000 gram (1 kg kurir)
         $totalWeight = max(1000, $totalQty * 350);
 
-        // Nilai ongkir default sebelum pembeli memilih kurir
-        $ongkir = 20000;
-        $total = $subtotal + $ongkir;
+        $ongkir = null;
+        $total = $subtotal;
 
-        // Cari file QRIS aktif toko secara dinamis
         $qrPath = null;
         $extensions = ['png', 'jpeg', 'jpg', 'svg'];
         foreach ($extensions as $ext) {
@@ -132,7 +129,7 @@ class CheckoutController extends Controller
             }
         }
 
-        return view('checkout', compact('checkoutItems', 'subtotal', 'ongkir', 'total', 'totalWeight', 'qrPath'));
+        return view('user.checkout', compact('checkoutItems', 'subtotal', 'ongkir', 'total', 'totalWeight', 'qrPath'));
     }
 
     /**
@@ -216,7 +213,6 @@ class CheckoutController extends Controller
             }
         }
 
-        // Urutkan hasil ongkir dari yang termurah
         usort($results, function ($a, $b) {
             return $a['cost'] <=> $b['cost'];
         });
@@ -235,9 +231,19 @@ class CheckoutController extends Controller
      */
     public function store(Request $request)
     {
+        if (!Auth::check()) {
+            return redirect()->guest(route('login'));
+        }
+
+        $request->merge([
+            'nama_penerima' => Auth::user()->username,
+            'no_hp_penerima' => Auth::user()->no_hp,
+        ]);
+
         $request->validate([
             'nama_penerima'  => 'required|string|max:100',
             'no_hp_penerima' => 'required|string|max:20',
+            'destination_id' => 'required|integer',
             'provinsi'       => 'required|string|max:100',
             'kota'           => 'required|string|max:100',
             'alamat_lengkap' => 'required|string',
@@ -246,26 +252,28 @@ class CheckoutController extends Controller
             'kurir'          => 'required|string|max:100',
             'layanan_kurir'  => 'nullable|string|max:100',
             'estimasi_tiba'  => 'nullable|string|max:100',
-            'bukti_bayar'    => 'nullable|image|mimes:png,jpg,jpeg|max:4096',
+            'bukti_bayar'    => 'required|image|mimes:png,jpg,jpeg|max:4096',
             'items'          => 'required|array|min:1',
             'items.*.motif_id' => 'required|exists:tb_motif,motif_id',
             'items.*.qty'      => 'required|integer|min:1',
         ], [
             'nama_penerima.required'  => 'Nama penerima wajib diisi.',
             'no_hp_penerima.required' => 'Nomor telepon wajib diisi.',
+            'destination_id.required' => 'Silakan pilih wilayah tujuan pengiriman.',
             'provinsi.required'       => 'Provinsi wajib dipilih.',
             'kota.required'           => 'Kota wajib dipilih.',
             'alamat_lengkap.required' => 'Alamat lengkap wajib diisi.',
             'kode_pos.required'       => 'Kode pos wajib diisi.',
             'ongkir.required'         => 'Pilihan kurir dan ongkos kirim wajib dipilih.',
             'kurir.required'          => 'Silakan pilih kurir pengiriman.',
+            'bukti_bayar.required'    => 'Bukti pembayaran wajib diunggah sebelum pesanan dapat disimpan.',
             'bukti_bayar.image'       => 'Bukti pembayaran harus berupa gambar.',
             'bukti_bayar.mimes'       => 'Bukti pembayaran harus berformat PNG, JPG, atau JPEG.',
             'bukti_bayar.max'         => 'Ukuran bukti pembayaran maksimal 4MB.',
         ]);
 
-        $userId = Auth::id() ?? 1; // Jika belum login, assign ke default user id 1
-        $ongkir = (int) $request->input('ongkir', 20000);
+        $userId = Auth::id();
+        $ongkir = (int) $request->input('ongkir');
         $totalBarang = 0;
         $detailToInsert = [];
         $cartIdsToDelete = [];
@@ -297,7 +305,6 @@ class CheckoutController extends Controller
 
         $totalHarga = $totalBarang + $ongkir;
 
-        // Handle upload bukti transfer jika ada
         $buktiFilename = null;
         $waktuBayar = null;
         if ($request->hasFile('bukti_bayar')) {
@@ -313,7 +320,6 @@ class CheckoutController extends Controller
 
         DB::beginTransaction();
         try {
-            // 1. Simpan ke tb_pemesanan
             $pemesanan = Pemesanan::create([
                 'user_id'        => $userId,
                 'nama_penerima'  => $request->nama_penerima,
@@ -323,10 +329,10 @@ class CheckoutController extends Controller
                 'kecamatan'      => $request->input('kecamatan', $request->kota),
                 'alamat_lengkap' => $request->alamat_lengkap,
                 'kode_pos'       => $request->kode_pos,
-                'kurir'          => $request->input('kurir', 'J&T Express'),
-                'layanan_kurir'  => $request->input('layanan_kurir', 'Reguler'),
+                'kurir'          => $request->input('kurir'),
+                'layanan_kurir'  => $request->input('layanan_kurir'),
                 'ongkir'         => $ongkir,
-                'estimasi_tiba'  => $request->input('estimasi_tiba', '2-3 Hari'),
+                'estimasi_tiba'  => $request->input('estimasi_tiba'),
                 'total_harga'    => $totalHarga,
                 'status_pesanan' => 'menunggu',
                 'no_resi'        => null,
@@ -335,7 +341,6 @@ class CheckoutController extends Controller
                 'catatan'        => $request->input('catatan'),
             ]);
 
-            // 2. Simpan setiap item ke tb_pemesanan_detail
             foreach ($detailToInsert as $detail) {
                 PemesananDetail::create([
                     'pemesanan_id' => $pemesanan->pemesanan_id,
@@ -346,7 +351,6 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            // 3. Bersihkan item yang dicheckout dari keranjang
             if (Auth::check()) {
                 if (!empty($cartIdsToDelete)) {
                     Keranjang::where('user_id', Auth::id())
@@ -386,7 +390,7 @@ class CheckoutController extends Controller
             ->latest('created_at')
             ->paginate(10);
 
-        return view('pesanan-user.index', compact('pesananList'));
+        return view('user.pesanan.index', compact('pesananList'));
     }
 
     /**
@@ -400,7 +404,6 @@ class CheckoutController extends Controller
             ->with(['details.motif.produk.kategori'])
             ->firstOrFail();
 
-        // Cari file QRIS aktif jika user ingin melihat kode QRIS untuk transfer
         $qrPath = null;
         $extensions = ['png', 'jpeg', 'jpg', 'svg'];
         foreach ($extensions as $ext) {
@@ -410,7 +413,7 @@ class CheckoutController extends Controller
             }
         }
 
-        return view('pesanan-user.show', compact('pesanan', 'qrPath'));
+        return view('user.pesanan.show', compact('pesanan', 'qrPath'));
     }
 
     /**
@@ -439,7 +442,6 @@ class CheckoutController extends Controller
             @mkdir($destPath, 0777, true);
         }
 
-        // Hapus bukti lama jika ada
         if ($pesanan->bukti_bayar && file_exists($destPath . '/' . $pesanan->bukti_bayar)) {
             @unlink($destPath . '/' . $pesanan->bukti_bayar);
         }

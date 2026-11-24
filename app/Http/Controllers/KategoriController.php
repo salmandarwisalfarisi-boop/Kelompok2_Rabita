@@ -18,21 +18,22 @@ class KategoriController extends Controller
 
         $kategori = $query->paginate(10)->withQueryString();
 
-        return view('kategori.index', compact('kategori'));
+        return view('admin.kategori.index', compact('kategori'));
     }
 
     public function create()
     {
-        return view('kategori.create');
+        return view('admin.kategori.create');
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nama_kategori' => 'required|string|max:100',
+            'nama_kategori' => 'required|string|max:100|unique:tb_kategori,nama_kategori',
             'gambar'        => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
         ], [
             'nama_kategori.required' => 'Nama kategori wajib diisi.',
+            'nama_kategori.unique'   => 'Nama kategori sudah digunakan.',
             'gambar.image'           => 'File harus berupa gambar.',
             'gambar.mimes'           => 'Format gambar harus jpg, jpeg, png, webp, atau svg.',
             'gambar.max'             => 'Ukuran gambar maksimal 2MB.',
@@ -69,16 +70,17 @@ class KategoriController extends Controller
 
     public function edit(Kategori $kategori)
     {
-        return view('kategori.edit', compact('kategori'));
+        return view('admin.kategori.edit', compact('kategori'));
     }
 
     public function update(Request $request, Kategori $kategori)
     {
         $request->validate([
-            'nama_kategori' => 'required|string|max:100',
+            'nama_kategori' => 'required|string|max:100|unique:tb_kategori,nama_kategori,' . $kategori->kategori_id . ',kategori_id',
             'gambar'        => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
         ], [
             'nama_kategori.required' => 'Nama kategori wajib diisi.',
+            'nama_kategori.unique'   => 'Nama kategori sudah digunakan.',
             'gambar.image'           => 'File harus berupa gambar.',
             'gambar.mimes'           => 'Format gambar harus jpg, jpeg, png, webp, atau svg.',
             'gambar.max'             => 'Ukuran gambar maksimal 2MB.',

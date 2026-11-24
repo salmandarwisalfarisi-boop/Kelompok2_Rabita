@@ -12,7 +12,6 @@ class BlogController extends Controller
     {
         $query = Blog::latest('blog_id');
 
-        // Filter Pencarian (Judul atau Isi Blog)
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -23,12 +22,12 @@ class BlogController extends Controller
 
         $blogs = $query->paginate(10)->withQueryString();
 
-        return view('blog.index', compact('blogs'));
+        return view('admin.blog.index', compact('blogs'));
     }
 
     public function create()
     {
-        return view('blog.create');
+        return view('admin.blog.create');
     }
 
     public function store(Request $request)
@@ -79,12 +78,12 @@ class BlogController extends Controller
     public function show(Blog $blog)
     {
         $blogs = Blog::where('status_blog', true)->latest('blog_id')->paginate(9);
-        return view('blog', compact('blogs', 'blog'));
+        return view('user.blog', compact('blogs', 'blog'));
     }
 
     public function edit(Blog $blog)
     {
-        return view('blog.edit', compact('blog'));
+        return view('admin.blog.edit', compact('blog'));
     }
 
     public function update(Request $request, Blog $blog)

@@ -15,29 +15,24 @@ class DashboardController extends Controller
 {
     private function getDashboardData()
     {
-        // 1. Metrik Utama
         $totalProduk = Produk::count();
         $totalPemesanan = Pemesanan::count();
         $totalPendapatan = Pemesanan::where('status_pesanan', '!=', 'dibatalkan')->sum('total_harga');
         $totalPengguna = User::where('level', 'user')->count();
 
-        // 2. Data Perbandingan Real-Time (Bulan Ini vs Bulan Lalu)
         $startThisMonth = Carbon::now()->startOfMonth();
         $startLastMonth = Carbon::now()->subMonth()->startOfMonth();
         $endLastMonth   = Carbon::now()->subMonth()->endOfMonth();
 
-        // Total Produk
         $diffProduk = 'Total produk';
         $trendProduk = 'neutral';
 
-        // Selisih Pesanan
         $pesananThisMonth = Pemesanan::where('created_at', '>=', $startThisMonth)->count();
         $pesananLastMonth = Pemesanan::whereBetween('created_at', [$startLastMonth, $endLastMonth])->count();
         $diffPesananNum   = $pesananThisMonth - $pesananLastMonth;
         $diffPemesanan = ($diffPesananNum >= 0 ? '+' : '') . $diffPesananNum . ' dari bulan lalu';
         $trendPemesanan = $diffPesananNum > 0 ? 'up' : ($diffPesananNum < 0 ? 'down' : 'neutral');
 
-        // Selisih Pendapatan
         $pendapatanThisMonth = Pemesanan::where('status_pesanan', '!=', 'dibatalkan')
             ->where('created_at', '>=', $startThisMonth)
             ->sum('total_harga');
@@ -49,18 +44,17 @@ class DashboardController extends Controller
         $diffPendapatan = ($diffIncomeNum >= 0 ? '+Rp ' : '-Rp ') . number_format(abs($diffIncomeNum), 0, ',', '.') . ' dari bulan lalu';
         $trendPendapatan = $diffIncomeNum > 0 ? 'up' : ($diffIncomeNum < 0 ? 'down' : 'neutral');
 
-        // Selisih Pengguna Baru
         $userThisMonth = User::where('level', 'user')->where('created_at', '>=', $startThisMonth)->count();
         $userLastMonth = User::where('level', 'user')->whereBetween('created_at', [$startLastMonth, $endLastMonth])->count();
         $diffUserNum   = $userThisMonth - $userLastMonth;
         $diffPengguna = ($diffUserNum >= 0 ? '+' : '') . $diffUserNum . ' dari bulan lalu';
         $trendPengguna = $diffUserNum > 0 ? 'up' : ($diffUserNum < 0 ? 'down' : 'neutral');
 
-        // 2. Data Grafik Pendapatan Riil dari Database (7 Hari & 30 Hari Terakhir)
         $chart7Labels = [];
         $chart7Values = [];
+        $today = Carbon::today();
         for ($i = 6; $i >= 0; $i--) {
-            $date = Carbon::now()->subDays($i);
+            $date = $today->copy()->subDays($i);
             $dateStr = $date->format('Y-m-d');
             $chart7Labels[] = $date->translatedFormat('d M');
 
@@ -73,32 +67,34 @@ class DashboardController extends Controller
 
         $chart30Labels = [];
         $chart30Values = [];
-        for ($i = 29; $i >= 0; $i--) {
-            $date = Carbon::now()->subDays($i);
-            $dateStr = $date->format('Y-m-d');
-            $chart30Labels[] = $date->translatedFormat('d M');
+        $chart30Start = $today->copy()->subDays(29);
+        for ($i = 0; $i < 6; $i++) {
+            $periodStart = $chart30Start->copy()->addDays($i * 5);
+            $periodEnd = $periodStart->copy()->addDays(4);
+            $periodLabel = $periodStart->isSameMonth($periodEnd)
+                ? $periodStart->translatedFormat('d') . '-' . $periodEnd->translatedFormat('d M')
+                : $periodStart->translatedFormat('d M') . '-' . $periodEnd->translatedFormat('d M');
+            $chart30Labels[] = $periodLabel;
 
             $omset = Pemesanan::where('status_pesanan', '!=', 'dibatalkan')
-                ->whereDate('created_at', $dateStr)
+                ->whereDate('created_at', '>=', $periodStart->toDateString())
+                ->whereDate('created_at', '<=', $periodEnd->toDateString())
                 ->sum('total_harga');
 
             $chart30Values[] = (int) $omset;
         }
 
-        // 3. Pesanan Terbaru
         $pesananTerbaru = Pemesanan::with(['user', 'details.motif.produk'])
             ->latest('created_at')
             ->take(5)
             ->get();
 
-        // 4. Stok Produk Hampir Habis (Melalui motif)
         $stokMenipis = Motif::with('produk.kategori')
             ->where('stok', '<', 16)
             ->orderBy('stok', 'asc')
             ->take(5)
             ->get();
 
-        // 5. Produk Paling Diminati (Terlaris)
         $produkTerlaris = PemesananDetail::select('motif_id', DB::raw('SUM(jumlah) as total_terjual'))
             ->groupBy('motif_id')
             ->orderByDesc('total_terjual')
@@ -132,7 +128,7 @@ class DashboardController extends Controller
     public function index()
     {
         $data = $this->getDashboardData();
-        return view('dashboard', $data);
+        return view('admin.dashboard', $data);
     }
 
     public function showPengaturan()

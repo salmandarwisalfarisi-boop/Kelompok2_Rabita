@@ -13,7 +13,6 @@ class PenggunaController extends Controller
     {
         $query = User::latest('user_id');
 
-        // Filter Pencarian (Username, Email, No HP)
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -23,19 +22,18 @@ class PenggunaController extends Controller
             });
         }
 
-        // Filter Level / Status
         if ($request->filled('level') && $request->level !== 'all') {
             $query->where('level', $request->level);
         }
 
         $pengguna = $query->paginate(10)->withQueryString();
 
-        return view('pengguna.index', compact('pengguna'));
+        return view('admin.pengguna.index', compact('pengguna'));
     }
 
     public function create()
     {
-        return view('pengguna.create');
+        return view('admin.pengguna.create');
     }
 
     public function store(Request $request)
@@ -45,16 +43,18 @@ class PenggunaController extends Controller
         }
 
         $request->validate([
-            'username' => 'required|string|max:100',
+            'username' => 'required|string|max:100|unique:tb_user,username',
             'email'    => 'required|string|email|max:150|unique:tb_user,email',
-            'no_hp'    => 'required|string|max:20',
+            'no_hp'    => ['required', 'regex:/^[0-9]{10,15}$/'],
             'password' => 'required|string|min:6',
             'level'    => 'required|in:admin,user',
         ], [
             'username.required' => 'Nama pengguna (username) wajib diisi.',
+            'username.unique'   => 'Username sudah digunakan.',
             'email.required'    => 'Email wajib diisi.',
             'email.unique'      => 'Email sudah terdaftar.',
             'no_hp.required'    => 'Nomor telepon wajib diisi.',
+            'no_hp.regex'      => 'Format nomor telepon tidak valid.',
             'password.required' => 'Password wajib diisi.',
             'password.min'      => 'Password minimal 6 karakter.',
             'level.required'    => 'Level pengguna wajib dipilih.',
@@ -75,7 +75,7 @@ class PenggunaController extends Controller
     public function edit(User $pengguna)
     {
         $user = $pengguna;
-        return view('pengguna.edit', compact('pengguna', 'user'));
+        return view('admin.pengguna.edit', compact('pengguna', 'user'));
     }
 
     public function update(Request $request, User $pengguna)
@@ -85,16 +85,18 @@ class PenggunaController extends Controller
         }
 
         $request->validate([
-            'username' => 'required|string|max:100',
+            'username' => ['required', 'string', 'max:100', Rule::unique('tb_user', 'username')->ignore($pengguna->user_id, 'user_id')],
             'email'    => ['required', 'string', 'email', 'max:150', Rule::unique('tb_user', 'email')->ignore($pengguna->user_id, 'user_id')],
-            'no_hp'    => 'required|string|max:20',
+            'no_hp'    => ['required', 'regex:/^[0-9]{10,15}$/'],
             'password' => 'nullable|string|min:6',
             'level'    => 'required|in:admin,user',
         ], [
             'username.required' => 'Nama pengguna (username) wajib diisi.',
+            'username.unique'   => 'Username sudah digunakan.',
             'email.required'    => 'Email wajib diisi.',
             'email.unique'      => 'Email sudah terdaftar.',
             'no_hp.required'    => 'Nomor telepon wajib diisi.',
+            'no_hp.regex'      => 'Format nomor telepon tidak valid.',
             'password.min'      => 'Password minimal 6 karakter.',
         ]);
 

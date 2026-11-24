@@ -16,18 +16,15 @@ class KatalogController extends Controller
         $query = Produk::with(['kategori', 'motif'])
             ->where('status', 'aktif');
 
-        // Filter Kategori jika ada
         if ($request->filled('kategori')) {
             $query->where('kategori_id', $request->kategori);
             $selectedKategori = Kategori::find($request->kategori);
         }
 
-        // Pencarian jika ada
         if ($request->filled('q')) {
             $query->where('nama_produk', 'like', '%' . $request->q . '%');
         }
 
-        // Pengurutan / Sort
         $sort = $request->get('sort', 'def');
         switch ($sort) {
             case 'asc':
@@ -44,9 +41,9 @@ class KatalogController extends Controller
                 break;
         }
 
-        $produk = $query->paginate(12)->withQueryString();
+        $produk = $query->paginate(8)->withQueryString();
         $totalProduk = $produk->total();
 
-        return view('produk', compact('produk', 'kategoriList', 'selectedKategori', 'totalProduk', 'sort'));
+        return view('user.katalog', compact('produk', 'kategoriList', 'selectedKategori', 'totalProduk', 'sort'));
     }
 }
