@@ -1,0 +1,123 @@
+* {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: #F3F3F7;
+            color: #5A5A5A;
+            font-family: 'Plus Jakarta Sans', sans-serif
+        }
+
+        .wrap {
+            max-width: 1264px;
+            margin: 0 auto;
+            padding: 56px 20px 70px
+        }
+
+        h1 {
+            margin: 0;
+            text-align: center;
+            color: #111;
+            font-size: 29px;
+            font-weight: 500
+        }
+
+        .count {
+            margin: 12px 0 0;
+            text-align: center;
+            color: #777;
+            font-size: 14px
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 48px 17px;
+            margin-top: 45px
+        }
+
+        .card {
+            display: block;
+            color: inherit;
+            text-align: center;
+            text-decoration: none
+        }
+
+        .thumb {
+            width: 100%;
+            aspect-ratio: 297/457;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 4px;
+            background: #E4E0D8
+        }
+
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .25s
+        }
+
+        .card:hover .thumb img {
+            transform: scale(1.03)
+        }
+
+        .card h2 {
+            margin: 16px 0 0;
+            color: #111;
+            font-size: 19px;
+            font-weight: 400
+        }
+
+        .price {
+            margin-top: 6px;
+            font-size: 14px
+        }
+
+        .empty {
+            grid-column: 1/-1;
+            padding: 80px 0;
+            text-align: center;
+            color: #777;
+            font-size: 16px
+        }
+
+        .pager {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 50px
+        }
+
+        .pager a,
+        .pager span {
+            min-width: 32px;
+            height: 32px;
+            padding: 0 8px;
+            border: 1px solid #DCDCE0;
+            border-radius: 4px;
+            background: #fff;
+            color: #5A5A5A;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 12px
+        }
+
+        .pager .current {
+            background: #B8935A;
+            border-color: #B8935A;
+            color: white
+        }
+
+        @media(max-width:900px) {
+            .grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 32px 14px
+            }
+        }

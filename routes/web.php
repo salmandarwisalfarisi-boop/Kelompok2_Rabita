@@ -13,6 +13,8 @@ use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\PesananController;
 use App\Http\Controllers\PenggunaController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\PencarianController;
+use App\Http\Controllers\PengaturanAkunController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,10 +27,11 @@ Route::get('/', [BerandaController::class, 'index'])->name('home');
 Route::get('/beranda', [BerandaController::class, 'index'])->name('beranda');
 
 // Tentang Kami
-Route::view('/tentang', 'tentang')->name('tentang');
+Route::view('/tentang', 'user.tentang')->name('tentang');
 
 // Katalog Produk & Kategori
 Route::get('/katalog', [KatalogController::class, 'index'])->name('katalog');
+Route::get('/pencarian', [PencarianController::class, 'index'])->name('pencarian');
 
 // Detail Produk
 Route::get('/detail/{id}', [DetailController::class, 'show'])->name('detail');
@@ -40,15 +43,16 @@ Route::post('/keranjang/update', [KeranjangController::class, 'update'])->name('
 Route::get('/keranjang/hapus/{id}', [KeranjangController::class, 'destroy'])->name('keranjang.destroy');
 
 // Checkout & Pemesanan
-Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
-Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-
 // RajaOngkir Real-Time API
 Route::get('/rajaongkir/destination', [CheckoutController::class, 'getDestinations'])->name('rajaongkir.destination');
 Route::post('/rajaongkir/cost', [CheckoutController::class, 'calculateCost'])->name('rajaongkir.cost');
 
 // Riwayat & Detail Pesanan User (Wajib Login)
 Route::middleware('auth')->group(function () {
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/pengaturan-akun', [PengaturanAkunController::class, 'edit'])->name('pengaturan.akun.edit');
+    Route::put('/pengaturan-akun', [PengaturanAkunController::class, 'update'])->name('pengaturan.akun.update');
     Route::get('/pesanan-saya', [CheckoutController::class, 'riwayatPesanan'])->name('pesanan.user.index');
     Route::get('/pesanan-saya/{id}', [CheckoutController::class, 'detailPesanan'])->name('pesanan.user.show');
     Route::post('/pesanan-saya/{id}/upload-bukti', [CheckoutController::class, 'uploadBukti'])->name('pesanan.user.upload-bukti');
@@ -74,7 +78,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('kategori', KategoriController::class);
 
     Route::post('pesanan/{pesanan}/konfirmasi', [PesananController::class, 'konfirmasi'])->name('pesanan.konfirmasi');
-    Route::put('pesanan/{pesanan}/status', [PesananController::class, 'updateStatus'])->name('pesanan.updateStatus');
+    Route::put('pesanan/{pesanan}/resi', [PesananController::class, 'updateResi'])->name('pesanan.updateResi');
     Route::resource('pesanan', PesananController::class)->only(['index', 'show', 'destroy']);
 
     Route::resource('pengguna', PenggunaController::class);

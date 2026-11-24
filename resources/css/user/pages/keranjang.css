@@ -1,0 +1,376 @@
+:root {
+            --nav: #151515;
+            --foot: #1A1A1A;
+            --gold: #C9A66B;
+            --bg1: #F5F4EF;
+            --ink: #111;
+            --tx: #666;
+            --line: #555;
+            --ph: #E4E0D8;
+            --ft: #CFCFCF;
+            --fm: #7D7D7D;
+            box-sizing: border-box;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px)
+        }
+
+        html {
+            background: var(--nav);
+            scroll-padding-top: env(safe-area-inset-top, 0px)
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            background: var(--bg1);
+            color: var(--tx)
+        }
+
+        svg {
+            display: block
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer
+        }
+
+        button:focus-visible,
+        input:focus-visible {
+            outline: 2px solid var(--gold);
+            outline-offset: 3px
+        }
+
+        /* KERANJANG */
+        .cart {
+            padding: 46px 20px 41px
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: 500;
+            font-size: 29px;
+            color: var(--ink);
+            letter-spacing: -.2px;
+            line-height: 34px
+        }
+
+        .box {
+            max-width: 1084px;
+            margin: 68px auto 0
+        }
+
+        @media(min-width:1200px) {
+            .box {
+                margin-left: calc(50% - 566px);
+                margin-right: 0
+            }
+        }
+
+        .tr {
+            display: grid;
+            grid-template-columns: 40px 1fr;
+            align-items: start
+        }
+
+        .c {
+            display: grid;
+            grid-template-columns: 366fr 166fr 378fr 132fr
+        }
+
+        .hd .c {
+            border-bottom: 1px solid var(--line);
+            height: 29px;
+            align-items: start
+        }
+
+        .hd .c span {
+            font-size: 16px;
+            line-height: 24px;
+            color: var(--tx);
+            text-align: center
+        }
+
+        .hd .c span:first-child {
+            text-align: left
+        }
+
+        .hd .c span:last-child {
+            text-align: right;
+            padding-right: 10px
+        }
+
+        input[type=checkbox] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--line);
+            border-radius: 2px;
+            background: transparent;
+            cursor: pointer;
+            margin: 0;
+            display: block
+        }
+
+        input[type=checkbox]:checked {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' fill='none' stroke='%23555' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4.5 9.5 3 3 6-7'/%3E%3C/svg%3E") center/100% no-repeat
+        }
+
+        .hd input {
+            margin-top: 3px
+        }
+
+        .row {
+            border-bottom: 1px solid var(--line)
+        }
+
+        .row .c {
+            padding: 32px 0 30px;
+            min-height: 229px
+        }
+
+        .row>input {
+            align-self: center
+        }
+
+        .prod {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            align-self: start
+        }
+
+        .ph {
+            width: 162px;
+            height: 167px;
+            flex: none;
+            background: var(--ph);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 4px
+        }
+
+        .ph img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover
+        }
+
+        .nm {
+            width: 160px
+        }
+
+        .nm b {
+            display: block;
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 20px;
+            color: var(--ink)
+        }
+
+        .nm small {
+            display: block;
+            font-size: 14px;
+            color: #777;
+            line-height: 18px
+        }
+
+        .nm .a {
+            margin-top: 8px
+        }
+
+        .nm .b {
+            margin-top: 6px
+        }
+
+        .pr,
+        .tt {
+            font-weight: 500;
+            font-size: 16px;
+            color: var(--ink);
+            text-align: center;
+            line-height: 20px;
+            padding-top: 69px
+        }
+
+        .tt {
+            text-align: right
+        }
+
+        .qc {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 57px
+        }
+
+        .qty {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 157px;
+            height: 47px;
+            border: 1px solid #666;
+            padding: 0 9px;
+            color: var(--line)
+        }
+
+        .qty button {
+            background: none;
+            border: 0;
+            width: 24px;
+            height: 24px;
+            display: grid;
+            place-items: center;
+            color: var(--line)
+        }
+
+        .qty span {
+            font-size: 20px;
+            font-weight: 300;
+            color: var(--line)
+        }
+
+        .del {
+            margin-top: 17px;
+            background: none;
+            border: 0;
+            font-size: 16px;
+            color: var(--tx);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            line-height: 20px;
+            cursor: pointer
+        }
+
+        .sum {
+            width: 260px;
+            margin: 30px 0 0 auto;
+            text-align: right
+        }
+
+        .sum .l {
+            font-size: 16px;
+            line-height: 22px;
+            color: var(--tx)
+        }
+
+        .sum .v {
+            font-weight: 500;
+            font-size: 22px;
+            line-height: 30px;
+            color: var(--ink);
+            margin-top: 3px
+        }
+
+        .co {
+            margin-top: 26px;
+            width: 212px;
+            height: 59px;
+            border: 1px solid var(--ink);
+            border-radius: 2px;
+            background: var(--ink);
+            font: 500 18px 'Plus Jakarta Sans', sans-serif;
+            color: #fff;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.2s
+        }
+
+        .co:hover {
+            background: #333
+        }
+
+        .empty {
+            padding: 90px 0;
+            text-align: center;
+            font-size: 16px;
+            color: #8A8A8A;
+            border-bottom: 1px solid var(--line)
+        }
+
+        @media(max-width:900px) {
+            .hd .c {
+                display: none
+            }
+
+            .hd {
+                display: none
+            }
+
+            .tr {
+                grid-template-columns: 28px 1fr
+            }
+
+            .c {
+                grid-template-columns: 1fr 1fr;
+                gap: 16px 12px
+            }
+
+            .row .c {
+                padding: 20px 0;
+                min-height: 0
+            }
+
+            .prod {
+                grid-column: 1/-1;
+                gap: 16px
+            }
+
+            .ph {
+                width: 110px;
+                height: 113px
+            }
+
+            .pr,
+            .tt,
+            .qc {
+                padding-top: 0
+            }
+
+            .pr {
+                text-align: left
+            }
+
+            .tt {
+                text-align: right
+            }
+
+            .pr::before {
+                content: "Harga: ";
+                font-weight: 300
+            }
+
+            .tt::before {
+                content: "Total: ";
+                font-weight: 300
+            }
+
+            .qc {
+                grid-column: 1/-1;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center
+            }
+
+            .del {
+                margin-top: 0
+            }
+
+            h1 {
+                font-size: 24px
+            }
+
+            .box {
+                margin-top: 36px
+            }
+        }
